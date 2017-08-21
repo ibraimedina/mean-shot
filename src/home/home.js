@@ -1,7 +1,7 @@
 module.exports = {
-  data () {
-    return {
-      message: 'Under construction...'
-    }
+  data: function() {
+  	return {
+  		text: "Under construction..."
+  	}
   }
 }

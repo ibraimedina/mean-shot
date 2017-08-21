@@ -22,10 +22,12 @@
   "homepage": "https://github.com/ibraimedina/mean-shot#readme",
   "dependencies": {
     "express": "^4.15.4",
-    "vue": "^2.4.2"
+    "vue": "^2.4.2",
+    "vue-material": "^0.7.4"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
+    "browserify-css": "^0.11.1",
     "vueify": "^9.4.1"
   }
 }

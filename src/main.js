@@ -1,23 +1,15 @@
 require('./main.css')
 
+// Dataabse initialization
+var firebase = require('firebase')
+var config = require('../configs/firebase.json')
+firebase.initializeApp(config)
+
 // Framework initialization
 var Vue = require('vue')
 var VueMaterial = require('vue-material')
 Vue.use(VueMaterial)
-Vue.material.registerTheme('default', {
-  primary: {
-  	color: 'cyan',
-  	hue: 800,
-  },
-  accent: {
-  	color: 'orange',
-  	hue: 500,
-  },
-  warn: {
-  	color: 'red',
-  	hue: 500,
-  }
-})
+Vue.material.registerTheme('default', require('../configs/vue-material-default.json'))
 
 // Global components
 var Header = require('./header/header.vue')

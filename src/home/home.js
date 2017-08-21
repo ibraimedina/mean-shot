@@ -1,7 +1,7 @@
+var Shot = require('../shot/shot.vue')
+
 module.exports = {
-  data: function() {
-  	return {
-  		text: "Under construction..."
-  	}
+  components: {
+  	msShot: Shot,
   }
 }

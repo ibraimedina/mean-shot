@@ -3,7 +3,7 @@
 		<ms-header title="Mean Shot"></ms-header>
 
 		<div class="main-content">
-			<p>{{text}}</p>
+			<ms-shot></ms-shot>
 		</div>
 	</div>
 </template>

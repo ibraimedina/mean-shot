@@ -1,9 +1,9 @@
 <template>
 	<div>	
-		<ms-header title="Mean Shot"></ms-header>
+		<ms-header></ms-header>
 
 		<div class="main-content">
-			<ms-shot></ms-shot>
+		  <ms-login></ms-login>
 		</div>
 	</div>
 </template>

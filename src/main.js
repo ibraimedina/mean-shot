@@ -15,12 +15,11 @@ Vue.material.registerTheme('default', require('../configs/vue-material-default.j
 
 
 // Global components
-var Header = require('components/header/header.vue')
-Vue.component('ms-header', Header)
-var Login = require('components/login/login.vue')
-Vue.component('ms-login', Login)
-var Scenario = require('components/scenario/scenario.vue')
-Vue.component('ms-scenario', Scenario)
+Vue.component('ms-header', require('components/header/header.vue'))
+Vue.component('ms-login', require('components/login/login.vue'))
+Vue.component('ms-scenario', require('components/scenario/scenario.vue'))
+Vue.component('ms-shots', require('components/shots/shots.vue'))
+
 
 // App initialization
 var Home = require('pages/home/home.vue')

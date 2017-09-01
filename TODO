@@ -1,0 +1,6 @@
+Register weapon charge (% or g) and type (energy or gas) in a session
+Read shots/previous sessions from a determined scenario
+Separate API from components in different files
+Put user data on session
+
+Be able to put more than 1 person/user in a session

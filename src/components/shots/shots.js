@@ -2,7 +2,8 @@ var firebase = require('firebase')
 
 function emptyShot() {
 	return {
-		value: 0
+		score: 0,
+		toBullseye: 0
 	}
 }
 

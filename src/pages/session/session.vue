@@ -9,7 +9,7 @@
 
 <template>
 	<div>	
-		<ms-header v-bind:prefix="'Session' + (session.id ? ' on ' + session.id : '')"></ms-header>
+		<ms-header v-bind:prefix="'Session' + (session.scenario ? ' on ' + session.scenario : '')"></ms-header>
 
 		<transition name="fade">
 			<ms-scenario v-show="!onSession" v-bind:on-success="start" v-bind:on-error="reset"></ms-scenario>

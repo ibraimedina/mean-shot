@@ -32,7 +32,7 @@ module.exports = {
 
 		saveShots: function(shots) {
 			this.session.shots = shots;
-			return firebase.database().ref('sessions/' + this.session.date).set(this.session)
+			return firebase.database().ref('sessions/' + this.session.scenario + '/' + this.session.date).set(this.session)
 		}
 	}
 }

@@ -9,6 +9,14 @@ function emptySession() {
 	}
 }
 
+function objectToArray(obj) {
+	let array = []
+	for (k in obj) {
+		array.push(obj[k])
+	}
+	return array
+}
+
 module.exports = {
 	data: function(){
 		return {
@@ -20,14 +28,12 @@ module.exports = {
 
 	methods: {
 		start: function(scenario) {
-			console.info("Let's get started", scenario)
 			this.onSession = scenario.id !== null
 			this.session.scenario = scenario.id
 			this.loadScenariosSessions(scenario.id)
 		},
 
 		reset: function(param) {
-			console.info("Ooh... do it again", param)
 			this.onSession = false
 			this.scenarioSessions = []
 			this.session = emptySession()
@@ -40,9 +46,9 @@ module.exports = {
 
 		loadScenariosSessions: function(scenario) {
 			var that = this
-			firebase.database().ref('sessions/' + scenario).once('value', function(snap){
+			firebase.database().ref('sessions/' + scenario).on('value', function(snap){
 				if (snap.val() !== null) {
-					that.scenarioSessions = snap.val()
+					that.scenarioSessions = objectToArray(snap.val()).reverse()
 				}
 			})
 		}

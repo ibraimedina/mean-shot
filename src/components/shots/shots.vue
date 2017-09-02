@@ -1,7 +1,7 @@
 <template>
 	<md-card>
 		<md-card-header>
-			<span>Register shots</span>
+			<span>Shots in this session</span>
 		</md-card-header>
 
 		<md-card-content>
@@ -11,14 +11,27 @@
 				<md-input disabled v-model="shot.toBullseye"></md-input>
 			</md-input-container>
 
-			<md-input-container>
-				<label>Shot</label>
-				<md-input type="number" v-model="shot.score" placeholder="Score"></md-input>
-				<md-input type="number" v-model="shot.toBullseye" placeholder="To bullseye (.05 cm)"></md-input>
-				<md-button class="md-icon-button" v-on:click="save">
-					<md-icon>check_circle</md-icon>
+			<md-layout md-gutter="true">
+
+				<md-layout>
+					<md-input-container>
+						<label>Score</label>
+						<md-input type="number" v-model="shot.score"></md-input>
+					</md-input-container>
+				</md-layout>
+
+				<md-layout>
+					<md-input-container>
+						<label>To bullseye (.05 cm)</label>
+						<md-input type="number" v-model="shot.toBullseye"></md-input>
+					</md-input-container>
+				</md-layout>
+
+				<md-button class="md-icon-button md-accent" v-on:click="save">
+					<md-icon>add_box</md-icon>
 				</md-button>
-			</md-input-container>
+
+			</md-layout>
 
 		</md-card-content>
 

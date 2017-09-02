@@ -1,13 +1,13 @@
 <template>
 	<md-card>
 
-		<md-card-header>Register scenarios</md-card-header>
+		<md-card-header>Scenario</md-card-header>
 
 		<md-card-content>
 
 			<md-input-container>
-				<label>Scenario</label>
-				<md-input placeholder="Scenario name" v-model="scenario.id"></md-input>
+				<label>Name</label>
+				<md-input v-model="scenario.id"></md-input>
 			</md-input-container>
 
 			<md-input-container>

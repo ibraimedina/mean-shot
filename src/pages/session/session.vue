@@ -9,14 +9,21 @@
 
 <template>
 	<div>	
+		
 		<ms-header v-bind:prefix="'Session' + (session.scenario ? ' on ' + session.scenario : '')"></ms-header>
 
 		<transition name="fade">
 			<ms-scenario v-show="!onSession" v-bind:on-success="start" v-bind:on-error="reset"></ms-scenario>
 		</transition>
+		
+		<div v-show="scenarioSessions" v-for="ss in scenarioSessions">
+			<ms-review v-bind:session="ss"></ms-review>
+		</div>
+		
 		<transition name="fade">
 			<ms-shots v-show="onSession" v-bind:on-save="saveShots"></ms-shots>
 		</transition>
+
 	</div>
 </template>
 

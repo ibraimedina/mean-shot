@@ -7,7 +7,8 @@
 		<md-card-content>
 
 			<md-input-container v-for="shot in shots">
-				<md-input disabled v-model="shot.value"></md-input>
+				<md-input disabled v-model="shot.score"></md-input>
+				<md-input disabled v-model="shot.toBullseye"></md-input>
 			</md-input-container>
 
 			<md-input-container>

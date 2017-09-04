@@ -31,10 +31,7 @@
 		</transition>
 				
 		<transition name="fade">
-			<md-input-container>
-				<label>Initial charge</label>
-				<md-input v-model.number="session.weapon.initialCharge"></md-input>
-			</md-input-container>
+			<ms-weapon v-bind:session="session"></ms-weapon>
 			<ms-shots v-show="onSession" v-bind:on-save="saveShots"></ms-shots>
 		</transition>
 		

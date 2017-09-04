@@ -16,14 +16,14 @@
 				<md-layout>
 					<md-input-container>
 						<label>Score</label>
-						<md-input type="number" v-model="shot.score"></md-input>
+						<md-input v-model.number="shot.score"></md-input>
 					</md-input-container>
 				</md-layout>
 
 				<md-layout>
 					<md-input-container>
 						<label>To bullseye (.05 cm)</label>
-						<md-input type="number" v-model="shot.toBullseye"></md-input>
+						<md-input v-model.number="shot.toBullseye"></md-input>
 					</md-input-container>
 				</md-layout>
 

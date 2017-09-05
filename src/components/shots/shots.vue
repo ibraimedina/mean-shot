@@ -7,8 +7,8 @@
 		<md-card-content>
 
 			<md-input-container v-for="s in shots">
-				<md-input disabled type="number" v-model="s.score"></md-input>
-				<md-input disabled type="number" v-model="s.toBullseye"></md-input>
+				<md-input disabled v-model="s.score"></md-input>
+				<md-input disabled v-model="s.toBullseye"></md-input>
 			</md-input-container>
 
 			<md-layout md-gutter="true">
@@ -16,14 +16,14 @@
 				<md-layout>
 					<md-input-container>
 						<label>Score</label>
-						<md-input v-model.number="shot.score"></md-input>
+						<md-input type="number" min="0" v-model.number="shot.score"></md-input>
 					</md-input-container>
 				</md-layout>
 
 				<md-layout>
 					<md-input-container>
 						<label>To bullseye (.05 cm)</label>
-						<md-input v-model.number="shot.toBullseye"></md-input>
+						<md-input type="number" min="0" v-model.number="shot.toBullseye"></md-input>
 					</md-input-container>
 				</md-layout>
 
@@ -34,10 +34,7 @@
 			</md-layout>
 
 		</md-card-content>
-
-		<md-card-actions>
-			<md-button class="md-primary" href="/session">Finish</md-button>
-		</md-card-actions>
+		
 	</md-card>
 </template>
 

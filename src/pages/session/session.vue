@@ -16,7 +16,7 @@
 	}
 	.slide-fade-enter, .slide-fade-leave-to
 	/* .slide-fade-leave-active below version 2.1.8 */ {
-	  transform: translateY(-100px);
+	  transform: translateY(-50px);
 	  opacity: 0;
 	}
 </style>
@@ -30,14 +30,22 @@
 			<ms-scenario v-show="!onSession" v-bind:on-success="start" v-bind:on-error="reset"></ms-scenario>
 		</transition>
 				
-		<transition name="fade">
-			<ms-weapon v-bind:session="session"></ms-weapon>
-			<ms-shots v-show="onSession" v-bind:on-save="saveShots"></ms-shots>
-		</transition>
+		<md-layout md-gutter v-show="onSession">
+
+			<md-layout md-column v-bind:key="left">
+				<ms-weapon v-bind:session="session"></ms-weapon>
+				<ms-shots v-bind:on-save="saveShots"></ms-shots>
+			</md-layout>
+
+			<md-layout md-column v-bind:key="right">
+				<ms-stats v-bind:sessions="scenarioSessions"></ms-stats>
+				<transition-group name="slide-fade">
+					<ms-review v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:key="ss.date"></ms-review>
+				</transition-group>
+			</md-layout>
+			
+		</md-layout>
 		
-			<transition-group name="slide-fade">
-				<ms-review v-show="scenarioSessions" v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:key="ss.date"></ms-review>
-			</transition-group>
 
 	</div>
 </template>

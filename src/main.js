@@ -19,9 +19,9 @@ Vue.component('ms-header', require('components/header/header.vue'))
 Vue.component('ms-login', require('components/login/login.vue'))
 Vue.component('ms-scenario', require('components/scenario/scenario.vue'))
 Vue.component('ms-shots', require('components/shots/shots.vue'))
-
 Vue.component('ms-review', require('components/review/review.vue'))
 Vue.component('ms-weapon', require('components/weapon/weapon.vue'))
+Vue.component('ms-stats', require('components/stats/stats.vue'))
 
 // App initialization
 var Home = require('pages/home/home.vue')

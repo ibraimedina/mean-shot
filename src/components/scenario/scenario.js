@@ -1,5 +1,28 @@
 var firebase = require('firebase')
 
+function emptyScenario() {
+	return {
+		id: '',
+		distance: null,
+		environment: '',
+		weapon: {
+			caliber: null,
+			maker: '',
+			model: '',
+		},
+		ammunition: {
+			caliber: null,
+			weight: null,
+			maker: '',
+			material: '',
+		},
+		target: {
+			size: null,
+			material: '',
+		}
+	}
+}
+
 module.exports = {
 	props: ['onSuccess', 'onError'],
 
@@ -7,8 +30,8 @@ module.exports = {
 		return {
 			scenario: {
 				id: '',
-				distance: 0,
-				environment: '',
+				distance: 10,
+				environment: 'indoor',
 				weapon: {
 					caliber: 6,
 					maker: '',
@@ -18,17 +41,21 @@ module.exports = {
 					caliber: 6,
 					weight: 0.12,
 					maker: '',
-					material: '',
+					material: 'plastic',
 				},
 				target: {
 					size: 20,
-					material: '',
+					material: 'paper',
 				}
 			}
 		}
 	},
 
 	methods: {
+		clear: function() {
+			this.scenario = emptyScenario()
+		},
+
 		save: function() {
 			var that = this
 			var scenarioRef = firebase.database().ref('scenarios/' + this.scenario.id)

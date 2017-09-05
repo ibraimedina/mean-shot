@@ -6,6 +6,7 @@
   "accent": {
   	"color": "orange",
   	"hue": 500,
+    "textColor": "white",
   },
   "warn": {
   	"color": "red",

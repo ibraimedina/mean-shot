@@ -11,9 +11,10 @@
 		</md-card-header>
 
 		<md-card-content>
-			<md-layout md-gutter>
-				<md-layout>Mean: {{mean}}</md-layout>
-				<md-layout>Mean to bullseye: {{toBullseyeMean}}cm ({{toBullseyeMin}}cm - {{toBullseyeMax}}cm)</md-layout>
+			<md-layout md-gutter md-column v-for="(data, user) in users" style="margin-bottom:10px;">
+				<md-layout>User: {{user}}</md-layout>
+				<md-layout>Mean: {{data.mean}}</md-layout>
+				<md-layout>Mean to bullseye: {{data.toBullseyeMean}}cm ({{data.toBullseyeMin}}cm - {{data.toBullseyeMax}}cm)</md-layout>
 			</md-layout>
 		</md-card-content>
 

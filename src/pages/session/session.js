@@ -17,12 +17,17 @@ function objectToArray(obj) {
 	return array
 }
 
+function encodeUserEmail(email) {
+	return encodeURIComponent(email).replace(/\./g, '%2E')
+}
+
 module.exports = {
 	data: function(){
 		return {
 			onSession: false,
 			scenarioSessions: [],
 			session: emptySession(),
+			sessionUsers: []
 		}
 	},
 
@@ -31,16 +36,18 @@ module.exports = {
 			this.onSession = scenario.id !== null
 			this.session.scenario = scenario.id
 			this.loadScenariosSessions(scenario.id)
+			this.sessionUsers = [firebase.auth().currentUser.email]
 		},
 
 		reset: function(param) {
 			this.onSession = false
 			this.scenarioSessions = []
 			this.session = emptySession()
+			this.sessionUsers = [firebase.auth().currentUser.email]
 		},
 
-		saveShots: function(shots) {
-			this.session.shots = shots;
+		saveShots: function(user, shots) {
+			this.session[encodeUserEmail(user.email)] = {shots}
 			return firebase.database().ref('sessions/' + this.session.scenario + '/' + this.session.date).set(this.session)
 		},
 

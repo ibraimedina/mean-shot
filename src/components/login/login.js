@@ -11,11 +11,12 @@ module.exports = {
 	methods: {
 		send: function() {
 			firebase.auth().onAuthStateChanged(function(user) {
-				console.info("STATE CHANGED");
+				console.info("AUTH-STATE CHANGED");
 			  if (user) {
+			  	console.debug("user", user)
 			    window.location.href = '/session'
 			  } else {
-			    console.info("user off");
+			    console.info("user out")
 			  }
 			});
 

@@ -1,7 +1,7 @@
 <template>
 	<md-card>
 		<md-card-header>
-			<span>Shots in this session</span>
+			<span>Shots in this session for user {{user}}</span>
 		</md-card-header>
 
 		<md-card-content>

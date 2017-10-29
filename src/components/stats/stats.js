@@ -25,13 +25,14 @@ module.exports = {
 
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
-				for (s in session.shots) {
-					let shot = session.shots[s]
-					this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-					this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					// if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
-					// if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
-				}
+				for (u in session.userData)
+					for (s in session.userData[u].shots) {
+						let shot = session.userData[u].shots[s]
+						this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
+						this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+						// if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
+						// if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
+					}
 			}
 			this.mean = roundUp(this.mean, 100)
 			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)

@@ -1,3 +1,5 @@
+var firebase = require('firebase')
+
 function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
@@ -5,11 +7,21 @@ function roundUp(num, precision) {
 function emptyReview() {
 	return {
 		date: new Date(),
+		users: {}
+	}
+}
+
+function emptyUserData() {
+	return {
 		mean: 0,
 		toBullseyeMean: 0,
 		toBullseyeMax: 0,
 		toBullseyeMin: Infinity
 	}
+}
+
+function decodeUserEmail(email) {
+	return decodeURIComponent(email.replace('%2E','.'))
 }
 
 module.exports = {
@@ -22,24 +34,25 @@ module.exports = {
 	methods: {
 		reset: function() {
 			this.date = new Date()
-			this.mean = 0
-			this.toBullseyeMean = 0
-			this.toBullseyeMax = 0
-			this.toBullseyeMin = Infinity
+			this.users = {}
 		},
 
 		render: function() {
 			this.date = new Date(this.session.date)
 
-			for (s in this.session.shots) {
-				let shot = this.session.shots[s]
-				this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-				this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-				if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
-				if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
+			for (u in this.session.userData) {
+				let user = decodeUserEmail(u)
+				this.users[user] = emptyUserData()
+				for (s in this.session.userData[u].shots) {
+					let shot = this.session.userData[u].shots[s]
+					this.users[user].mean = (this.users[user].mean * Number(s) + shot.score) / (Number(s) + 1)
+					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
+					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
+				}
+				this.users[user].mean = roundUp(this.users[user].mean, 100)
+				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
 			}
-			this.mean = roundUp(this.mean, 100)
-			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},
 

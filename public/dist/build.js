@@ -33336,11 +33336,12 @@ module.exports = {
 	methods: {
 		send: function() {
 			firebase.auth().onAuthStateChanged(function(user) {
-				console.info("STATE CHANGED");
+				console.info("AUTH-STATE CHANGED");
 			  if (user) {
+			  	console.debug("user", user)
 			    window.location.href = '/session'
 			  } else {
-			    console.info("user off");
+			    console.info("user out")
 			  }
 			});
 
@@ -33379,6 +33380,8 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 })()}
 },{"firebase":92,"vue":156,"vue-hot-reload-api":154}],160:[function(require,module,exports){
 ;(function(){
+var firebase = require('firebase')
+
 function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
@@ -33386,11 +33389,21 @@ function roundUp(num, precision) {
 function emptyReview() {
 	return {
 		date: new Date(),
+		users: {}
+	}
+}
+
+function emptyUserData() {
+	return {
 		mean: 0,
 		toBullseyeMean: 0,
 		toBullseyeMax: 0,
 		toBullseyeMin: Infinity
 	}
+}
+
+function decodeUserEmail(email) {
+	return decodeURIComponent(email.replace('%2E','.'))
 }
 
 module.exports = {
@@ -33403,24 +33416,25 @@ module.exports = {
 	methods: {
 		reset: function() {
 			this.date = new Date()
-			this.mean = 0
-			this.toBullseyeMean = 0
-			this.toBullseyeMax = 0
-			this.toBullseyeMin = Infinity
+			this.users = {}
 		},
 
 		render: function() {
 			this.date = new Date(this.session.date)
 
-			for (s in this.session.shots) {
-				let shot = this.session.shots[s]
-				this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-				this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-				if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
-				if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
+			for (u in this.session.userData) {
+				let user = decodeUserEmail(u)
+				this.users[user] = emptyUserData()
+				for (s in this.session.userData[u].shots) {
+					let shot = this.session.userData[u].shots[s]
+					this.users[user].mean = (this.users[user].mean * Number(s) + shot.score) / (Number(s) + 1)
+					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
+					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
+				}
+				this.users[user].mean = roundUp(this.users[user].mean, 100)
+				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
 			}
-			this.mean = roundUp(this.mean, 100)
-			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},
 
@@ -33441,7 +33455,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":""}},[_c('md-layout',[_vm._v("Mean: "+_vm._s(_vm.mean))]),_vm._v(" "),_c('md-layout',[_vm._v("Mean to bullseye: "+_vm._s(_vm.toBullseyeMean)+"cm ("+_vm._s(_vm.toBullseyeMin)+"cm - "+_vm._s(_vm.toBullseyeMax)+"cm)")])],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])]),_vm._v(" "),_c('md-card-content',_vm._l((_vm.users),function(data,user){return _c('md-layout',{staticStyle:{"margin-bottom":"10px"},attrs:{"md-gutter":"","md-column":""}},[_c('md-layout',[_vm._v("User: "+_vm._s(user))]),_vm._v(" "),_c('md-layout',[_vm._v("Mean: "+_vm._s(data.mean))]),_vm._v(" "),_c('md-layout',[_vm._v("Mean to bullseye: "+_vm._s(data.toBullseyeMean)+"cm ("+_vm._s(data.toBullseyeMin)+"cm - "+_vm._s(data.toBullseyeMax)+"cm)")])],1)}))],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -33450,10 +33464,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-22cd0a18", __vue__options__)
   } else {
-    hotAPI.reload("data-v-22cd0a18", __vue__options__)
+    hotAPI.rerender("data-v-22cd0a18", __vue__options__)
   }
 })()}
-},{"vue":156,"vue-hot-reload-api":154}],161:[function(require,module,exports){
+},{"firebase":92,"vue":156,"vue-hot-reload-api":154}],161:[function(require,module,exports){
 ;(function(){
 var firebase = require('firebase')
 
@@ -33557,7 +33571,7 @@ function emptyShot() {
 }
 
 module.exports = {
-	props: ['onSave'],
+	props: ['onSave', 'user'],
 
 	data: function() {
 		return {
@@ -33570,7 +33584,7 @@ module.exports = {
 		save: function() {
 			var that = this
 			this.shots.push(this.shot)
-			this.onSave(this.shots).then(function() {
+			this.onSave(this.user, this.shots).then(function() {
 				that.shot = emptyShot()
 			}, function(e) {
 				console.error(e)
@@ -33582,7 +33596,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Shots in this session")])]),_vm._v(" "),_c('md-card-content',[_vm._l((_vm.shots),function(s){return _c('md-input-container',[_c('md-input',{attrs:{"disabled":""},model:{value:(s.score),callback:function ($$v) {s.score=$$v},expression:"s.score"}}),_vm._v(" "),_c('md-input',{attrs:{"disabled":""},model:{value:(s.toBullseye),callback:function ($$v) {s.toBullseye=$$v},expression:"s.toBullseye"}})],1)}),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":"true"}},[_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("Score")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0"},model:{value:(_vm.shot.score),callback:function ($$v) {_vm.shot.score=_vm._n($$v)},expression:"shot.score"}})],1)],1),_vm._v(" "),_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("To bullseye (.05 cm)")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0"},model:{value:(_vm.shot.toBullseye),callback:function ($$v) {_vm.shot.toBullseye=_vm._n($$v)},expression:"shot.toBullseye"}})],1)],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-accent",on:{"click":_vm.save}},[_c('md-icon',[_vm._v("add_box")])],1)],1)],2)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Shots in this session for user "+_vm._s(_vm.user))])]),_vm._v(" "),_c('md-card-content',[_vm._l((_vm.shots),function(s){return _c('md-input-container',[_c('md-input',{attrs:{"disabled":""},model:{value:(s.score),callback:function ($$v) {s.score=$$v},expression:"s.score"}}),_vm._v(" "),_c('md-input',{attrs:{"disabled":""},model:{value:(s.toBullseye),callback:function ($$v) {s.toBullseye=$$v},expression:"s.toBullseye"}})],1)}),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":"true"}},[_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("Score")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0"},model:{value:(_vm.shot.score),callback:function ($$v) {_vm.shot.score=_vm._n($$v)},expression:"shot.score"}})],1)],1),_vm._v(" "),_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("To bullseye (.05 cm)")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0"},model:{value:(_vm.shot.toBullseye),callback:function ($$v) {_vm.shot.toBullseye=_vm._n($$v)},expression:"shot.toBullseye"}})],1)],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-accent",on:{"click":_vm.save}},[_c('md-icon',[_vm._v("add_box")])],1)],1)],2)],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -33591,7 +33605,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-032c324c", __vue__options__)
   } else {
-    hotAPI.reload("data-v-032c324c", __vue__options__)
+    hotAPI.rerender("data-v-032c324c", __vue__options__)
   }
 })()}
 },{"firebase":92,"vue":156,"vue-hot-reload-api":154}],163:[function(require,module,exports){
@@ -33623,13 +33637,14 @@ module.exports = {
 
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
-				for (s in session.shots) {
-					let shot = session.shots[s]
-					this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-					this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					// if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
-					// if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
-				}
+				for (u in session.userData)
+					for (s in session.userData[u].shots) {
+						let shot = session.userData[u].shots[s]
+						this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
+						this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+						// if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
+						// if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
+					}
 			}
 			this.mean = roundUp(this.mean, 100)
 			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
@@ -33785,12 +33800,17 @@ function objectToArray(obj) {
 	return array
 }
 
+function encodeUserEmail(email) {
+	return encodeURIComponent(email).replace(/\./g, '%2E')
+}
+
 module.exports = {
 	data: function(){
 		return {
 			onSession: false,
 			scenarioSessions: [],
 			session: emptySession(),
+			sessionUsers: []
 		}
 	},
 
@@ -33799,16 +33819,18 @@ module.exports = {
 			this.onSession = scenario.id !== null
 			this.session.scenario = scenario.id
 			this.loadScenariosSessions(scenario.id)
+			this.sessionUsers = [firebase.auth().currentUser.email]
 		},
 
 		reset: function(param) {
 			this.onSession = false
 			this.scenarioSessions = []
 			this.session = emptySession()
+			this.sessionUsers = [firebase.auth().currentUser.email]
 		},
 
-		saveShots: function(shots) {
-			this.session.shots = shots;
+		saveShots: function(user, shots) {
+			this.session[encodeUserEmail(user.email)] = {shots}
 			return firebase.database().ref('sessions/' + this.session.scenario + '/' + this.session.date).set(this.session)
 		},
 
@@ -33826,7 +33848,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Session' + (_vm.session.scenario ? ' on ' + _vm.session.scenario : '')}}),_vm._v(" "),_c('transition',{attrs:{"name":"fade"}},[_c('ms-scenario',{directives:[{name:"show",rawName:"v-show",value:(!_vm.onSession),expression:"!onSession"}],attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1),_vm._v(" "),_c('md-layout',{directives:[{name:"show",rawName:"v-show",value:(_vm.onSession),expression:"onSession"}],attrs:{"md-gutter":""}},[_c('md-layout',{key:_vm.left,attrs:{"md-column":""}},[_c('ms-weapon',{attrs:{"session":_vm.session}}),_vm._v(" "),_c('ms-shots',{attrs:{"on-save":_vm.saveShots}})],1),_vm._v(" "),_c('md-layout',{key:_vm.right,attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss}})}))],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Session' + (_vm.session.scenario ? ' on ' + _vm.session.scenario : '')}}),_vm._v(" "),_c('transition',{attrs:{"name":"fade"}},[_c('ms-scenario',{directives:[{name:"show",rawName:"v-show",value:(!_vm.onSession),expression:"!onSession"}],attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1),_vm._v(" "),_c('md-layout',{directives:[{name:"show",rawName:"v-show",value:(_vm.onSession),expression:"onSession"}],attrs:{"md-gutter":""}},[_c('md-layout',{key:_vm.left,attrs:{"md-column":""}},[_c('ms-weapon',{attrs:{"session":_vm.session}}),_vm._v(" "),_vm._l((_vm.sessionUsers),function(user){return _c('ms-shots',{key:user.email,attrs:{"user":user,"on-save":_vm.saveShots}})})],2),_vm._v(" "),_c('md-layout',{key:_vm.right,attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss}})}))],1)],1)],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

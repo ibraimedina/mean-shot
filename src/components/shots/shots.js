@@ -8,7 +8,7 @@ function emptyShot() {
 }
 
 module.exports = {
-	props: ['onSave'],
+	props: ['onSave', 'user'],
 
 	data: function() {
 		return {
@@ -21,7 +21,7 @@ module.exports = {
 		save: function() {
 			var that = this
 			this.shots.push(this.shot)
-			this.onSave(this.shots).then(function() {
+			this.onSave(this.user, this.shots).then(function() {
 				that.shot = emptyShot()
 			}, function(e) {
 				console.error(e)

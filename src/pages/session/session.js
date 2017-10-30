@@ -3,6 +3,7 @@ var firebase = require('firebase')
 function emptySession() {
 	return {
 		date: Date.now(),
+		userData: {},
 		weapon: {
 			initialCharge: 0,
 		},
@@ -47,7 +48,7 @@ module.exports = {
 		},
 
 		saveShots: function(user, shots) {
-			this.session[encodeUserEmail(user.email)] = {shots}
+			this.session.userData[encodeUserEmail(user)] = {shots}
 			return firebase.database().ref('sessions/' + this.session.scenario + '/' + this.session.date).set(this.session)
 		},
 

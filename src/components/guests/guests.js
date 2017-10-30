@@ -9,8 +9,10 @@ module.exports = {
 	
 	methods: {
 		add: function(){
-			this.guests.push(this.guest)
-			this.reset()
+			if (this.guests.indexOf(this.guest) < 0) {
+				this.guests.push(this.guest)
+				this.reset()
+			}
 		},
 
 		reset: function(){

@@ -1,7 +1,5 @@
 Register weapon charge (% or g) and type (energy or gas) in a session
 Update automatically the scenario data
 Show shots amount on reviews
+Allow put data with ENTER
 Separate API from components in different files
-Put user data on session
-
-Be able to put more than 1 person/user in a session

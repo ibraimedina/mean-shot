@@ -34,6 +34,7 @@
 
 			<md-layout md-column v-bind:key="left">
 				<ms-weapon v-bind:session="session"></ms-weapon>
+				<ms-guests v-bind:guests="sessionUsers"></ms-guests>
 				<ms-shots v-for="user in sessionUsers" v-bind:user="user" v-bind:key="user.email" v-bind:on-save="saveShots"></ms-shots>
 			</md-layout>
 

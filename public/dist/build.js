@@ -33420,6 +33420,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   }
 })()}
 },{"firebase":92,"vue":156,"vue-hot-reload-api":154}],161:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".text {\n\t\tmargin-bottom: 10px;\n\t\ttext-align: center;\n\t}\n\t.text-user {\n\t}\n\t.text-title {\n\t}\n\t.text-value {\n    font-size: large;\n    font-weight: lighter;\n\t}\n\t.text-secondary {\n\t\tcolor: gray;\n\t\tfont-size: smaller;\n\t}")
 ;(function(){
 var firebase = require('firebase')
 
@@ -33437,6 +33438,8 @@ function emptyReview() {
 function emptyUserData() {
 	return {
 		mean: 0,
+		quantity: 0,
+		sum: 0,
 		toBullseyeMean: 0,
 		toBullseyeMax: 0,
 		toBullseyeMin: Infinity
@@ -33468,12 +33471,13 @@ module.exports = {
 				this.users[user] = emptyUserData()
 				for (s in this.session.userData[u].shots) {
 					let shot = this.session.userData[u].shots[s]
-					this.users[user].mean = (this.users[user].mean * Number(s) + shot.score) / (Number(s) + 1)
+					this.users[user].sum += shot.score
 					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
 					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
 					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
 				}
-				this.users[user].mean = roundUp(this.users[user].mean, 100)
+				this.users[user].quantity = this.session.userData[u].shots.length;
+				this.users[user].mean = roundUp(this.users[user].sum / this.users[user].quantity, 100)
 				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
 			}
 		}
@@ -33496,19 +33500,20 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])]),_vm._v(" "),_c('md-card-content',_vm._l((_vm.users),function(data,user){return _c('md-layout',{staticStyle:{"margin-bottom":"10px"},attrs:{"md-gutter":"","md-column":""}},[_c('md-layout',[_vm._v("User: "+_vm._s(user))]),_vm._v(" "),_c('md-layout',[_vm._v("Mean: "+_vm._s(data.mean))]),_vm._v(" "),_c('md-layout',[_vm._v("Mean to bullseye: "+_vm._s(data.toBullseyeMean)+"cm ("+_vm._s(data.toBullseyeMin)+"cm - "+_vm._s(data.toBullseyeMax)+"cm)")])],1)}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])]),_vm._v(" "),_c('md-card-content',_vm._l((_vm.users),function(data,user){return _c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('md-layout',[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(data.mean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("scored "+_vm._s(data.sum)+" from "+_vm._s(data.quantity)+" shots")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(data.toBullseyeMean)+"cm")]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(data.toBullseyeMin)+"cm - "+_vm._s(data.toBullseyeMax)+"cm")])])],1)],1)}))],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.accept()
+  module.hot.dispose(__vueify_style_dispose__)
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-22cd0a18", __vue__options__)
   } else {
-    hotAPI.reload("data-v-22cd0a18", __vue__options__)
+    hotAPI.rerender("data-v-22cd0a18", __vue__options__)
   }
 })()}
-},{"firebase":92,"vue":156,"vue-hot-reload-api":154}],162:[function(require,module,exports){
+},{"firebase":92,"vue":156,"vue-hot-reload-api":154,"vueify/lib/insert-css":157}],162:[function(require,module,exports){
 ;(function(){
 var firebase = require('firebase')
 
@@ -33646,7 +33651,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-032c324c", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-032c324c", __vue__options__)
+    hotAPI.reload("data-v-032c324c", __vue__options__)
   }
 })()}
 },{"firebase":92,"vue":156,"vue-hot-reload-api":154}],164:[function(require,module,exports){
@@ -33655,13 +33660,29 @@ function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
 
+function emptyBest() {
+	return {
+		date: 0,
+		mean: 0,
+		quantity: 0,
+		sum: 0,
+		toBullseyeMean: Infinity,
+		user: ""
+	}
+}
+
+function decodeUserEmail(email) {
+	return decodeURIComponent(email.replace('%2E','.'))
+}
+
 module.exports = {
 	props: ['sessions'],
 
 	data: function() {
 		return {
+			best: emptyBest(),
 			mean: 0,
-			toBullseyeMean: 0
+			toBullseyeMean: 0,
 		}
 	},
 
@@ -33669,23 +33690,35 @@ module.exports = {
 		reset: function() {
 			this.mean = 0
 			this.toBullseyeMean = 0
-			// this.toBullseyeMax = 0
-			// this.toBullseyeMin = Infinity
+			this.best = emptyBest()
 		},
 
 		render: function() {
-			console.debug(this.sessions)
-
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
-				for (u in session.userData)
+				for (u in session.userData) {
+					let userMean = 0, userSum = 0, userToBullseyeMean = 0
+					
 					for (s in session.userData[u].shots) {
 						let shot = session.userData[u].shots[s]
+						userSum += shot.score
+						userToBullseyeMean = (userToBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
 						this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
 						this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-						// if (this.toBullseyeMin > shot.toBullseye) this.toBullseyeMin = shot.toBullseye
-						// if (this.toBullseyeMax < shot.toBullseye) this.toBullseyeMax = shot.toBullseye
 					}
+
+					userMean = roundUp(userSum / (session.userData[u].shots.length), 100)
+					if (userMean > this.best.mean) {
+						this.best = {
+							date: new Date(session.date),
+							mean: userMean,
+							quantity: (session.userData[u].shots.length),
+							sum: userSum,
+							toBullseyeMean: roundUp(userToBullseyeMean, 100),
+							user: decodeUserEmail(u)
+						}
+					}
+				}
 			}
 			this.mean = roundUp(this.mean, 100)
 			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
@@ -33708,7 +33741,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-accent"},[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":""}},[_c('md-layout',{attrs:{"md-column":""}},[_c('span',[_vm._v("Scenario mean")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.mean))])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":""}},[_c('span',[_vm._v("Scenario mean to bullseye")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.toBullseyeMean)+"cm")])])],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-accent"},[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("\n\t\t\tScenario info\n\t\t")])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":""}},[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',[_vm._v("Mean")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.mean))])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',[_vm._v("Mean to bullseye")]),_vm._v(" "),_c('span',[_vm._v(_vm._s(_vm.toBullseyeMean)+"cm")])])],1),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('span',[_vm._v("Best: "+_vm._s(_vm.best.user)+" at "+_vm._s(_vm.best.date.getDate())+"/"+_vm._s(_vm.best.date.getMonth() + 1)+"/"+_vm._s(_vm.best.date.getFullYear()))]),_vm._v(" "),_c('span',[_vm._v("Mean: "+_vm._s(_vm.best.mean)+", scored "+_vm._s(_vm.best.sum)+" from "+_vm._s(_vm.best.quantity)+" shots")]),_vm._v(" "),_c('span',[_vm._v("ToBullseyeMean: "+_vm._s(_vm.best.toBullseyeMean)+"cm")])])],1)],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -33717,7 +33750,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-ef43b0d0", __vue__options__)
   } else {
-    hotAPI.reload("data-v-ef43b0d0", __vue__options__)
+    hotAPI.rerender("data-v-ef43b0d0", __vue__options__)
   }
 })()}
 },{"vue":156,"vue-hot-reload-api":154}],165:[function(require,module,exports){

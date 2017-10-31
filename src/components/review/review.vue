@@ -1,3 +1,22 @@
+<style>
+	.text {
+		margin-bottom: 10px;
+		text-align: center;
+	}
+	.text-user {
+	}
+	.text-title {
+	}
+	.text-value {
+    font-size: large;
+    font-weight: lighter;
+	}
+	.text-secondary {
+		color: gray;
+		font-size: smaller;
+	}
+</style>
+
 <template>
 	<md-card>
 
@@ -11,10 +30,18 @@
 		</md-card-header>
 
 		<md-card-content>
-			<md-layout md-gutter md-column v-for="(data, user) in users" style="margin-bottom:10px;">
-				<md-layout>User: {{user}}</md-layout>
-				<md-layout>Mean: {{data.mean}}</md-layout>
-				<md-layout>Mean to bullseye: {{data.toBullseyeMean}}cm ({{data.toBullseyeMin}}cm - {{data.toBullseyeMax}}cm)</md-layout>
+			<md-layout md-gutter md-column v-for="(data, user) in users" class="text">
+				<div title="user" class="text-user">{{user}}</div>
+				<md-layout>
+					<md-layout md-column title="mean">
+						<span class="text-value">{{data.mean}}</span>
+						<span class="text-secondary">scored {{data.sum}} from {{data.quantity}} shots</span>
+					</md-layout>
+					<md-layout md-column title="mean to bullseye">
+						<span class="text-value">{{data.toBullseyeMean}}cm</span>
+						<span class="text-secondary">{{data.toBullseyeMin}}cm - {{data.toBullseyeMax}}cm</span>
+					</md-layout>
+				</md-layout>
 			</md-layout>
 		</md-card-content>
 

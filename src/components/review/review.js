@@ -14,6 +14,8 @@ function emptyReview() {
 function emptyUserData() {
 	return {
 		mean: 0,
+		quantity: 0,
+		sum: 0,
 		toBullseyeMean: 0,
 		toBullseyeMax: 0,
 		toBullseyeMin: Infinity
@@ -45,12 +47,13 @@ module.exports = {
 				this.users[user] = emptyUserData()
 				for (s in this.session.userData[u].shots) {
 					let shot = this.session.userData[u].shots[s]
-					this.users[user].mean = (this.users[user].mean * Number(s) + shot.score) / (Number(s) + 1)
+					this.users[user].sum += shot.score
 					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
 					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
 					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
 				}
-				this.users[user].mean = roundUp(this.users[user].mean, 100)
+				this.users[user].quantity = this.session.userData[u].shots.length;
+				this.users[user].mean = roundUp(this.users[user].sum / this.users[user].quantity, 100)
 				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
 			}
 		}

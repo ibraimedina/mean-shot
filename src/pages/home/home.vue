@@ -2,9 +2,11 @@
 	<div>	
 		<ms-header></ms-header>
 
-		<div class="main-content">
-		  <ms-login></ms-login>
-		</div>
+		<md-layout md-column-xsmall md-align="center">
+			<md-layout md-flex-xsmall="100" md-flex="50" md-align="center">
+		  	<ms-login></ms-login>
+			</md-layout>
+		</md-layout>
 	</div>
 </template>
 

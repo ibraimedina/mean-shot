@@ -1,4 +1,4 @@
-<style>
+<style scoped>
 	.fade-enter-active {
 	  transition: opacity .5s
 	}
@@ -30,15 +30,17 @@
 			<ms-scenario v-show="!onSession" v-bind:on-success="start" v-bind:on-error="reset"></ms-scenario>
 		</transition>
 				
-		<md-layout md-gutter v-show="onSession">
+		<md-layout md-column-xsmall md-vertical-align="start" md-gutter v-show="onSession">
 
-			<md-layout md-column v-bind:key="left">
-				<ms-weapon v-bind:session="session"></ms-weapon>
-				<ms-guests v-bind:guests="sessionUsers"></ms-guests>
+			<md-layout md-column>
+				<md-layout md-column-xsmall md-column-small>
+					<md-layout md-flex="50"><ms-weapon v-bind:session="session"></ms-weapon></md-layout>
+					<md-layout md-flex="50"><ms-guests v-bind:guests="sessionUsers"></ms-guests></md-layout>
+				</md-layout>
 				<ms-shots v-for="user in sessionUsers" v-bind:user="user" v-bind:key="user" v-bind:on-save="saveShots"></ms-shots>
 			</md-layout>
 
-			<md-layout md-column v-bind:key="right">
+			<md-layout md-column>
 				<ms-stats v-bind:sessions="scenarioSessions"></ms-stats>
 				<transition-group name="slide-fade">
 					<ms-review v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:key="ss.date"></ms-review>

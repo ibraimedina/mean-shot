@@ -1,3 +1,9 @@
+<style scoped>
+	.md-card {
+		width: 100%;
+	}
+</style>
+
 <template>
 	<md-card>
 

@@ -11,27 +11,29 @@
 				<md-input disabled v-model="s.toBullseye"></md-input>
 			</md-input-container>
 
-			<md-layout md-gutter="true">
+			<form v-on:submit="save" action="javascript:void(0);">
+				<md-layout md-gutter>
+					
+					<md-layout>
+						<md-input-container>
+							<label>Score</label>
+							<md-input type="number" min="0" v-model.number="shot.score"></md-input>
+						</md-input-container>
+					</md-layout>
 
-				<md-layout>
-					<md-input-container>
-						<label>Score</label>
-						<md-input type="number" min="0" v-model.number="shot.score"></md-input>
-					</md-input-container>
+					<md-layout>
+						<md-input-container>
+							<label>To bullseye (cm)</label>
+							<md-input type="number" min="0" step="0.05" v-model.number="shot.toBullseye"></md-input>
+						</md-input-container>
+					</md-layout>
+
+					<md-button type="submit" class="md-icon-button md-accent">
+						<md-icon>add_box</md-icon>
+					</md-button>
+
 				</md-layout>
-
-				<md-layout>
-					<md-input-container>
-						<label>To bullseye (.05 cm)</label>
-						<md-input type="number" min="0" v-model.number="shot.toBullseye"></md-input>
-					</md-input-container>
-				</md-layout>
-
-				<md-button class="md-icon-button md-accent" v-on:click="save">
-					<md-icon>add_box</md-icon>
-				</md-button>
-
-			</md-layout>
+			</form>
 
 		</md-card-content>
 		

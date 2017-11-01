@@ -1,4 +1,4 @@
-<style>
+<style scoped>
 	.text {
 		margin-bottom: 10px;
 		text-align: center;

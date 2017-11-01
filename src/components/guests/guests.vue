@@ -1,20 +1,29 @@
+<style scoped>
+	.md-card {
+		width: 100%;
+	}
+</style>
+
 <template>
 	<md-card>
 		
 		<md-card-header>
-			Add user to session
+			<span>Add user to session</span>
 		</md-card-header>
 		
-		<md-card-content>
-			<md-input-container>
-				<label>Guest</label>
-				<md-input v-model="guest"></md-input>
-			</md-input-container>
-		</md-card-content>
-		
-		<md-card-actions>
-			<md-button v-on:click="add">Add</md-button>
-		</md-card-actions>
+		<form v-on:submit="add" action="javascript:void(0);">
+			<md-card-content>
+				<md-input-container>
+					<label>Guest</label>
+					<md-input v-model="guest"></md-input>
+				</md-input-container>
+			</md-card-content>
+			
+			<md-card-actions>
+				<md-button type="submit">Add</md-button>
+			</md-card-actions>
+		</form>
+
 	</md-card>
 </template>
 

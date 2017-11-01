@@ -63,10 +63,11 @@ module.exports = {
 				if (snap.val() === null) {
 					scenarioRef.set(that.scenario)
 						.then(that.onSuccess, that.onError)
+					console.debug("Scenario created with success! Go shot!")
 				} else {
 					that.scenario = snap.val()
 					that.onSuccess(snap.val())
-					console.debug("Go shot!")
+					console.debug("Scenario already created! Go shot!")
 				}
 			})
 		}

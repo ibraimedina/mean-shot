@@ -33526,6 +33526,7 @@ var firebase = require('firebase')
 
 function emptyScenario() {
 	return {
+		author: "",
 		id: '',
 		distance: null,
 		environment: '',
@@ -33553,6 +33554,7 @@ module.exports = {
 	data: function() {
 		return {
 			scenario: {
+				author: "",
 				id: '',
 				distance: 10,
 				environment: 'indoor',
@@ -33583,6 +33585,7 @@ module.exports = {
 		save: function() {
 			var that = this
 			var scenarioRef = firebase.database().ref('scenarios/' + this.scenario.id)
+			this.scenario.author = firebase.auth().currentUser.email
 			scenarioRef.once('value', function(snap) {
 				if (snap.val() === null) {
 					scenarioRef.set(that.scenario)
@@ -33745,14 +33748,14 @@ module.exports = {
 							sum: uData.sum,
 							toBullseyeMean: roundUp(uData.toBullseyeMean, 100),
 							toBullseyeMax: uData.toBullseyeMax,
-							toBullseyeMin: uData.toBullseyeMin,
+							toBullseyeMin: uData.toBullseyeMax && uData.toBullseyeMin,
 							user: decodeUserEmail(u)
 						}
 					}
 				}
 			}
 			this.mean = roundUp(this.mean, 100)
-			this.userShotsMean = roundUp(totalShots / totalUsers, 1)
+			this.userShotsMean = totalUsers && roundUp(totalShots / totalUsers, 1)
 			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},

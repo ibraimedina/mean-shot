@@ -10,7 +10,7 @@ function emptyBest() {
 		sum: 0,
 		toBullseyeMean: 0,
 		toBullseyeMax: 0,
-		toBullseyeMin: Infinity,
+		toBullseyeMin: 0,
 		user: ""
 	}
 }
@@ -85,7 +85,7 @@ module.exports = {
 				}
 			}
 			this.mean = roundUp(this.mean, 100)
-			this.userShotsMean = roundUp(totalShots / totalUsers, 1)
+			this.userShotsMean = totalUsers && roundUp(totalShots / totalUsers, 1)
 			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},

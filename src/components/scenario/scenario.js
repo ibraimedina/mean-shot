@@ -2,6 +2,7 @@ var firebase = require('firebase')
 
 function emptyScenario() {
 	return {
+		author: "",
 		id: '',
 		distance: null,
 		environment: '',
@@ -29,6 +30,7 @@ module.exports = {
 	data: function() {
 		return {
 			scenario: {
+				author: "",
 				id: '',
 				distance: 10,
 				environment: 'indoor',
@@ -59,6 +61,7 @@ module.exports = {
 		save: function() {
 			var that = this
 			var scenarioRef = firebase.database().ref('scenarios/' + this.scenario.id)
+			this.scenario.author = firebase.auth().currentUser.email
 			scenarioRef.once('value', function(snap) {
 				if (snap.val() === null) {
 					scenarioRef.set(that.scenario)

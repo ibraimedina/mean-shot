@@ -1,8 +1,4 @@
 <style scoped>
-	.md-card {
-		width: 100%;
-	}
-
 	.text {
 		margin-bottom: 10px;
 		text-align: center;

@@ -1,5 +1,12 @@
 @import url("../node_modules/vue-material/dist/vue-material.css");
 
+
+/* Just fix a vue-material bug: an input and a select in the same input-container overwrapping. */
+.md-input-container .md-input ~ .md-select {
+	width: auto;
+}
+
+
 .md-card {
 	margin: 8px;
 }

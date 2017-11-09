@@ -1,9 +1,12 @@
 Register weapon charge (% or g) and type (energy or gas) in a session
 
 Refactor view component of user shots (stats and review)
-Allow start directly a scenario session (if logged): /session/6m-home or /scenario/6m-home
 
 Session dashboard page (/session/6m-home/12345431) showing all shots, per sequence. Separated by user?
+Feedback if has user logged, including disabled buttons, forbidden pages, etc.
+Allow start directly a scenario session (if logged): /session/6m-home or /scenario/6m-home
+Logout
 User dashboard page (scenarios shot, mean on each of then, dates, click to start session at that scenario)
 
 Separate API from components in different files
+Unit test with vuejs and unit js test

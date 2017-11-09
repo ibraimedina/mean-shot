@@ -30,7 +30,7 @@
     "express": "^4.15.4",
     "firebase": "^4.3.0",
     "vue": "^2.4.2",
-    "vue-material": "^0.7.4",
+    "vue-material": "^0.8.1",
     "vueify": "^9.4.1"
   },
   "devDependencies": {}

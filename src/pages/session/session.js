@@ -6,6 +6,7 @@ function emptySession() {
 		userData: {},
 		weapon: {
 			initialCharge: 0,
+			chargeType: ''
 		},
 	}
 }

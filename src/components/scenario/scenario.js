@@ -65,7 +65,7 @@ module.exports = {
 			scenarioRef.once('value', function(snap) {
 				if (snap.val() === null) {
 					scenarioRef.set(that.scenario)
-						.then(that.onSuccess, that.onError)
+						.then(() => that.onSuccess(that.scenario), that.onError)
 					console.debug("Scenario created with success! Go shot!")
 				} else {
 					that.scenario = snap.val()

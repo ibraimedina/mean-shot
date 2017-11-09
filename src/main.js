@@ -23,6 +23,7 @@ Vue.component('ms-review', require('components/review/review.vue'))
 Vue.component('ms-weapon', require('components/weapon/weapon.vue'))
 Vue.component('ms-stats', require('components/stats/stats.vue'))
 Vue.component('ms-guests', require('components/guests/guests.vue'))
+Vue.component('ms-summary', require('components/summary/summary.vue'))
 
 // App initialization
 var Home = require('pages/home/home.vue')

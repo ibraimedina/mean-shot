@@ -7,13 +7,6 @@
 	}
 	.text-title {
 	}
-	.text-value {
-    font-size: large;
-    font-weight: lighter;
-	}
-	.text-secondary {
-		font-size: smaller;
-	}
 </style>
 
 <template>
@@ -48,16 +41,7 @@
 			<md-layout md-gutter md-column class="text">
 				<div>Best at {{best.date.getDate()}}/{{best.date.getMonth() + 1}}/{{best.date.getFullYear()}}</div>
 				<div title="user" class="text-user">{{best.user}}</div>
-				<md-layout>
-					<md-layout md-column title="mean">
-						<span class="text-value">{{best.mean}}</span>
-						<span class="text-secondary">scored {{best.sum}} from {{best.quantity}} shots</span>
-					</md-layout>
-					<md-layout md-column title="mean to bullseye">
-						<span class="text-value">{{best.toBullseyeMean}}cm</span>
-						<span class="text-secondary">{{best.toBullseyeMin}}cm - {{best.toBullseyeMax}}cm</span>
-					</md-layout>
-				</md-layout>
+				<ms-summary v-bind:data="best"></ms-summary>
 			</md-layout>
 
 		</md-card-content>

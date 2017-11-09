@@ -1,7 +1,3 @@
-Register weapon charge (% or g) and type (energy or gas) in a session
-
-Refactor view component of user shots (stats and review)
-
 Session dashboard page (/session/6m-home/12345431) showing all shots, per sequence. Separated by user?
 Feedback if has user logged, including disabled buttons, forbidden pages, etc.
 Allow start directly a scenario session (if logged): /session/6m-home or /scenario/6m-home

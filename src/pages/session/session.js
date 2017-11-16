@@ -35,6 +35,7 @@ module.exports = {
 
 	methods: {
 		start: function(scenario) {
+			console.debug("router", this.$router);
 			this.onSession = scenario.id !== null
 			this.session.scenario = scenario.id
 			this.loadScenariosSessions(scenario.id)

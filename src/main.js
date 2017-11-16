@@ -11,6 +11,8 @@ Firebase.initializeApp(config)
 var Vue = require('vue')
 var VueMaterial = require('vue-material')
 Vue.use(VueMaterial)
+var VueRouter = require('vue-router')
+Vue.use(VueRouter)
 Vue.material.registerTheme('default', require('../configs/vue-material-default.json'))
 
 
@@ -25,24 +27,23 @@ Vue.component('ms-stats', require('components/stats/stats.vue'))
 Vue.component('ms-guests', require('components/guests/guests.vue'))
 Vue.component('ms-summary', require('components/summary/summary.vue'))
 
-// App initialization
+// Global pages
 var Home = require('pages/home/home.vue')
 var Session = require('pages/session/session.vue')
 
-const routes = {
-  '/': Home,
-  '/session': Session,
-}
+// App routes
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    {path: '/',         component: Home},
+    {path: '/session/:id(\\d+)?',  component: Session}
+  ]
+})
 
+// App initialization
+var Main = require('./main.vue')
 var App = new Vue({
+  router,
   el: '#app',
-  data: {
-    currentRoute: window.location.pathname
-  },
-  computed: {
-    ViewComponent () {
-      return routes[this.currentRoute] || Home
-    }
-  },
-  render (h) { return h(this.ViewComponent) }
+  render(h) { return h(Main) }
 })

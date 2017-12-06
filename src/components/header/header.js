@@ -1,3 +1,3 @@
 module.exports = {
-	props: ['title', 'prefix'],
+	props: ['title', 'prefix', 'postfix'],
 }

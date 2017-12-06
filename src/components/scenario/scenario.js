@@ -2,7 +2,7 @@ var firebase = require('firebase')
 
 function emptyScenario() {
 	return {
-		author: "",
+		author: '',
 		id: '',
 		distance: null,
 		environment: '',
@@ -30,7 +30,7 @@ module.exports = {
 	data: function() {
 		return {
 			scenario: {
-				author: "",
+				author: '',
 				id: '',
 				distance: 10,
 				environment: 'indoor',
@@ -49,8 +49,13 @@ module.exports = {
 					size: 20,
 					material: 'paper',
 				}
-			}
+			},
+			user: null
 		}
+	},
+
+	mounted: function() {
+		this.user = firebase.auth().currentUser
 	},
 
 	methods: {
@@ -64,7 +69,8 @@ module.exports = {
 			this.scenario.author = firebase.auth().currentUser.email
 			scenarioRef.once('value', function(snap) {
 				if (snap.val() === null) {
-					scenarioRef.set(that.scenario)
+					scenarioRef
+						.set(that.scenario)
 						.then(() => that.onSuccess(that.scenario), that.onError)
 					console.debug("Scenario created with success! Go shot!")
 				} else {

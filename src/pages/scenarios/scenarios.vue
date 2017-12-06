@@ -23,19 +23,24 @@
 
 <template>
 	<div>	
-		
-		<ms-header v-bind:prefix="'Session' + (session.scenario ? ' on ' + session.scenario : '')"></ms-header>
+		<ms-header v-bind:prefix="'Scenario' + (session.scenario ? ': ' + session.scenario : '')" v-bind:postfix="user ? user.email : ''"></ms-header>
 
-		<transition name="fade">
-			<md-layout md-column-xsmall v-show="!onSession" md-align="center">
-				<md-layout md-flex-xsmall="100" md-flex="75.1" md-align="center">
+		<transition-group name="fade">
+			<md-layout md-column-xsmall md-align="center" v-if="!onSession && !session.date" key="new">
+				<md-layout md-flex-xsmall="100" md-flex="75" md-align="center">
+					<ms-scenarios v-bind:scenarios="scenarios" v-bind:start="start"></ms-scenarios>
 					<ms-scenario v-bind:on-success="start" v-bind:on-error="reset"></ms-scenario>
 				</md-layout>
 			</md-layout>
-		</transition>
-				
-		<md-layout md-gutter md-column-xsmall md-vertical-align="start" v-show="onSession">
 
+			<md-layout md-column-xsmall md-align="center" v-if="!onSession && session.date" key="review">
+				<md-layout md-flex-xsmall="100" md-flex="75" md-align="center">
+					<ms-session v-bind:session="session"></ms-session>
+				</md-layout>
+			</md-layout>
+		</transition-group>
+				
+		<md-layout md-gutter md-column-xsmall md-vertical-align="start" v-if="onSession">
 			<md-layout md-column>
 				<md-layout md-column-xsmall md-column-small>
 					<md-layout md-flex="50"><ms-weapon v-bind:session="session"></ms-weapon></md-layout>
@@ -52,11 +57,8 @@
 					<ms-review v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:key="ss.date"></ms-review>
 				</transition-group>
 			</md-layout>
-			
 		</md-layout>
-		
-
 	</div>
 </template>
 
-<script src="./session.js"></script>
+<script src="./scenarios.js"></script>

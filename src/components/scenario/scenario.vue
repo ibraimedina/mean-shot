@@ -2,7 +2,7 @@
 	<md-card>
 
 		<md-card-header>
-			<span>Scenario</span>
+			<span>Create a new scenario</span>
 		</md-card-header>
 
 		<form v-on:submit="save" action="javascript:void(0);">

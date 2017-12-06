@@ -1,8 +1,8 @@
 {
 	"apiKey": "AIzaSyDckW5cKZvYD6qWABtz6Yf_n1CoO7y0oJE",
-  "authDomain": "mean-shot.firebaseapp.com",
-  "databaseURL": "https://mean-shot.firebaseio.com",
-  "projectId": "mean-shot",
-  "storageBucket": "mean-shot.appspot.com",
-  "messagingSenderId": "190243218717"
+	"authDomain": "mean-shot.firebaseapp.com",
+	"databaseURL": "https://mean-shot.firebaseio.com",
+	"projectId": "mean-shot",
+	"storageBucket": "mean-shot.appspot.com",
+	"messagingSenderId": "190243218717"
 }

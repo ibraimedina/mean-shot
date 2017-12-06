@@ -10,7 +10,7 @@
 </style>
 
 <template>
-	<md-card class="md-accent">
+	<md-card class="md-primary">
 		<md-card-header>
 			<div class="md-title">
 				Scenario info

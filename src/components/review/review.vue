@@ -17,12 +17,14 @@
 	<md-card>
 
 		<md-card-header>
-			<div class="md-title">
-				<span>{{date.getDate()}}/{{date.getMonth() + 1}}/{{date.getFullYear()}}</span>
-			</div>
-			<div class="md-subhead">
-				<span>{{date.getHours()}}:{{date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes()}}</span>
-			</div>
+			<router-link v-bind:to="`/scenarios/${session.scenario}/${session.date}`" v-bind:key="session.date">
+				<div class="md-title">
+					<span>{{date.getDate()}}/{{date.getMonth() + 1}}/{{date.getFullYear()}}</span>
+				</div>
+				<div class="md-subhead">
+					<span>{{date.getHours()}}:{{date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes()}}</span>
+				</div>
+			</router-link>
 		</md-card-header>
 
 		<md-card-content>

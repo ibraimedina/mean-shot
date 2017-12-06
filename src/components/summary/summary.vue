@@ -7,7 +7,8 @@
 		color: gray;
 		font-size: smaller;
 	}
-	.md-accent .text-secondary {
+	.md-accent .text-secondary,
+	.md-primary .text-secondary {
 		color: white;
 	}
 </style>

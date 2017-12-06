@@ -1,8 +1,13 @@
-Session dashboard page (/session/6m-home/12345431) showing all shots, per sequence. Separated by user?
+Session dashboard not found
+Scenario dashboard page (/scenarios/6m-home): list of sessions. simple!
+Scenario dashboard not found
+Change session/ to scenario/ in firebase
+
 Feedback if has user logged, including disabled buttons, forbidden pages, etc.
-Allow start directly a scenario session (if logged): /session/6m-home or /scenario/6m-home
 Logout
 User dashboard page (scenarios shot, mean on each of then, dates, click to start session at that scenario)
 
 Separate API from components in different files
 Unit test with vuejs and unit js test
+
+Add translation (i18n)

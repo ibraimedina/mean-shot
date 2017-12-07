@@ -10,7 +10,6 @@
 
 		<form v-on:submit="send" action="javascript:void(0);">
 			<md-card-content>
-
 				<md-input-container>
 					<label>User email</label>
 					<md-input v-model="username"></md-input>
@@ -20,14 +19,13 @@
 					<label>Password</label>
 					<md-input type="password" v-model="password"></md-input>
 				</md-input-container>
-			
 			</md-card-content>
 
 			<md-card-actions>
+				<md-button v-on:click="view" class="md-primary">Just view</md-button>
 				<md-button type="submit" class="md-primary md-raised">Enter</md-button>
 			</md-card-actions>
 		</form>
-
 	</md-card>
 </template>
 

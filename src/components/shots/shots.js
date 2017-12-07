@@ -25,6 +25,7 @@ module.exports = {
 				that.shot = emptyShot()
 			}, function(e) {
 				console.error(e)
+				that.shots.pop()
 			})
 		}
 	}

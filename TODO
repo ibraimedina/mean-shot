@@ -1,12 +1,12 @@
-Session dashboard not found
 Scenario dashboard page (/scenarios/6m-home): list of sessions. simple!
+Session dashboard not found
 Scenario dashboard not found
 Change session/ to scenario/ in firebase
 
-Feedback if has user logged, including disabled buttons, forbidden pages, etc.
-Logout
+Feedback if has user logged, including disabled buttons, forbidden pages, forbid db changes, etc.
 User dashboard page (scenarios shot, mean on each of then, dates, click to start session at that scenario)
 
+Lint code
 Separate API from components in different files
 Unit test with vuejs and unit js test
 

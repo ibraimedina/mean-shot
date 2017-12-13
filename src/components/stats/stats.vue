@@ -39,8 +39,8 @@
 			</md-layout>
 
 			<md-layout md-gutter md-column class="text">
-				<div>Best at {{best.date.getDate()}}/{{best.date.getMonth() + 1}}/{{best.date.getFullYear()}}</div>
-				<div title="user" class="text-user">{{best.user}}</div>
+				<div><strong>Record</strong></div>
+				<div title="user" class="text-user">{{best.user}} ({{best.date.getDate()}}/{{best.date.getMonth() + 1}}/{{best.date.getFullYear()}})</div>
 				<ms-summary v-bind:data="best"></ms-summary>
 			</md-layout>
 

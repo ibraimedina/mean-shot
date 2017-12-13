@@ -1,3 +1,5 @@
+var firebase = require('firebase')
+
 function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
@@ -29,40 +31,55 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props : ['session'],
+	props : ['scenario', 'date'],
 
 	data: function() {
 		return {
-			xexom: emptySession()
+			session: emptySession(),
+			rawSession: emptySession()
 		}
 	},
 
 	created: function() {
-		this.xexom.scenario = this.$route.params.id
-		this.render()
 	},
 
 	mounted: function() {
+		this.load(this.scenario, this.date)
 	},
 
 	methods: {
-		render: function() {
-			this.xexom.date = new Date(this.session.date)
+		reset: function() {
+			this.session = emptySession()
+			this.session.date = new Date(Number(this.date))
 
-			for (u in this.session.userData) {
+			this.rawSession = emptySession()
+		},
+
+		load: function(scenario, date) {
+			let that = this
+			firebase.database().ref('sessions/' + scenario + '/' + date).on('value', function(snap) {
+				that.reset()
+				if (snap.val() !== null)
+					that.rawSession = snap.val()
+				that.render()
+			})
+		},
+
+		render: function() {
+			for (u in this.rawSession.userData) {
 				let email = decodeUserEmail(u)
-				this.xexom.userData[email] = emptyUserData()
-				this.xexom.userData[email].shots = this.session.userData[u].shots
-				for (s in this.session.userData[u].shots) {
-					let shot = this.session.userData[u].shots[s]
-					this.xexom.userData[email].sum += shot.score
-					this.xexom.userData[email].toBullseyeMean = (this.xexom.userData[email].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					if (this.xexom.userData[email].toBullseyeMin > shot.toBullseye) this.xexom.userData[email].toBullseyeMin = shot.toBullseye
-					if (this.xexom.userData[email].toBullseyeMax < shot.toBullseye) this.xexom.userData[email].toBullseyeMax = shot.toBullseye
+				this.session.userData[email] = emptyUserData()
+				this.session.userData[email].shots = this.rawSession.userData[u].shots
+				for (s in this.rawSession.userData[u].shots) {
+					let shot = this.rawSession.userData[u].shots[s]
+					this.session.userData[email].sum += shot.score
+					this.session.userData[email].toBullseyeMean = (this.session.userData[email].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					if (this.session.userData[email].toBullseyeMin > shot.toBullseye) this.session.userData[email].toBullseyeMin = shot.toBullseye
+					if (this.session.userData[email].toBullseyeMax < shot.toBullseye) this.session.userData[email].toBullseyeMax = shot.toBullseye
 				}
-				this.xexom.userData[email].quantity = this.session.userData[u].shots.length;
-				this.xexom.userData[email].mean = roundUp(this.xexom.userData[email].sum / this.xexom.userData[email].quantity, 100)
-				this.xexom.userData[email].toBullseyeMean = roundUp(this.xexom.userData[email].toBullseyeMean, 100)
+				this.session.userData[email].quantity = this.rawSession.userData[u].shots.length;
+				this.session.userData[email].mean = roundUp(this.session.userData[email].sum / this.session.userData[email].quantity, 100)
+				this.session.userData[email].toBullseyeMean = roundUp(this.session.userData[email].toBullseyeMean, 100)
 			}
 		}
 	}

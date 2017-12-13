@@ -2,12 +2,12 @@ var firebase = require('firebase')
 
 function emptySession() {
 	return {
-		date: null, //
+		date: null,
 		userData: {},
 		weapon: {
 			initialCharge: 0,
 			chargeType: ''
-		},
+		}
 	}
 }
 
@@ -36,13 +36,13 @@ module.exports = {
 	},
 
 	mounted: function() {
-		this.load(this.$route.params.id, this.$route.params.date)
+		this.load(this.$route.params.id)
 	},
 
 	watch: {
 		'$route': function(to, from) {
 			this.reset()
-			this.load(to.params.id, to.params.date)	
+			this.load(to.params.id)
 		}
 	},
 
@@ -60,35 +60,26 @@ module.exports = {
 			this.scenarios = []
 			this.scenarioSessions = []
 			this.session = emptySession()
-			this.sessionUsers = [firebase.auth().currentUser.email]
+			this.sessionUsers = []
+			this.user = firebase.auth().currentUser
 		},
 
-		load: function(id, date) {
+		load: function(id) {
 			this.user = firebase.auth().currentUser
 
-			if (date) {
-				this.loadSession(id, date)
-			} else {
-				if (id) this.loadScenarioSessions(id)
-				this.loadScenarios()
-			}
+			if (id) this.loadScenarioSessions(id)
+			this.loadScenarios(id)
 		},
 
-		loadScenarios: function() {
+		loadScenarios: function(id) {
 			let that = this
-			firebase.database().ref('scenarios').on('value', function(snap) {
-				that.reset()
-				if (snap.val() !== null)
-					that.scenarios = snap.val()
-			})
-		},
-
-		loadSession: function(id, date) {
-			let that = this
-			firebase.database().ref('sessions/' + id + '/' + date).on('value', function(snap) {
-				that.reset()
-				if (snap.val() !== null)
-					that.session = snap.val()
+			firebase.database().ref('scenarios' + (id ? `/${id}`: '')).on('value', function(snap) {
+				if (snap.val() !== null) {
+					if (snap.val().id)
+						that.scenarios = [snap.val()]
+					else
+						that.scenarios = snap.val()
+				}
 			})
 		},
 

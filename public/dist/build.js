@@ -44091,7 +44091,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.scenarios)?_c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Select a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('span',[_vm._v(_vm._s(sc.id))]),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-primary"},[_vm._v("play_arrow")])],1)],1)}))],1)],1)],1):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.scenarios)?_c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Start a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('div',{staticClass:"md-list-text-container"},[_c('router-link',{attrs:{"to":'/scenarios/' + sc.id}},[_vm._v(_vm._s(sc.id))])],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-primary"},[_vm._v("play_arrow")])],1)],1)}))],1)],1)],1):_vm._e()}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44100,11 +44100,13 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-3bea2bc0", __vue__options__)
   } else {
-    hotAPI.reload("data-v-3bea2bc0", __vue__options__)
+    hotAPI.rerender("data-v-3bea2bc0", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}],167:[function(require,module,exports){
 ;(function(){
+var firebase = require('firebase')
+
 function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
@@ -44136,40 +44138,55 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props : ['session'],
+	props : ['scenario', 'date'],
 
 	data: function() {
 		return {
-			xexom: emptySession()
+			session: emptySession(),
+			rawSession: emptySession()
 		}
 	},
 
 	created: function() {
-		this.xexom.scenario = this.$route.params.id
-		this.render()
 	},
 
 	mounted: function() {
+		this.load(this.scenario, this.date)
 	},
 
 	methods: {
-		render: function() {
-			this.xexom.date = new Date(this.session.date)
+		reset: function() {
+			this.session = emptySession()
+			this.session.date = new Date(Number(this.date))
 
-			for (u in this.session.userData) {
+			this.rawSession = emptySession()
+		},
+
+		load: function(scenario, date) {
+			let that = this
+			firebase.database().ref('sessions/' + scenario + '/' + date).on('value', function(snap) {
+				that.reset()
+				if (snap.val() !== null)
+					that.rawSession = snap.val()
+				that.render()
+			})
+		},
+
+		render: function() {
+			for (u in this.rawSession.userData) {
 				let email = decodeUserEmail(u)
-				this.xexom.userData[email] = emptyUserData()
-				this.xexom.userData[email].shots = this.session.userData[u].shots
-				for (s in this.session.userData[u].shots) {
-					let shot = this.session.userData[u].shots[s]
-					this.xexom.userData[email].sum += shot.score
-					this.xexom.userData[email].toBullseyeMean = (this.xexom.userData[email].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					if (this.xexom.userData[email].toBullseyeMin > shot.toBullseye) this.xexom.userData[email].toBullseyeMin = shot.toBullseye
-					if (this.xexom.userData[email].toBullseyeMax < shot.toBullseye) this.xexom.userData[email].toBullseyeMax = shot.toBullseye
+				this.session.userData[email] = emptyUserData()
+				this.session.userData[email].shots = this.rawSession.userData[u].shots
+				for (s in this.rawSession.userData[u].shots) {
+					let shot = this.rawSession.userData[u].shots[s]
+					this.session.userData[email].sum += shot.score
+					this.session.userData[email].toBullseyeMean = (this.session.userData[email].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					if (this.session.userData[email].toBullseyeMin > shot.toBullseye) this.session.userData[email].toBullseyeMin = shot.toBullseye
+					if (this.session.userData[email].toBullseyeMax < shot.toBullseye) this.session.userData[email].toBullseyeMax = shot.toBullseye
 				}
-				this.xexom.userData[email].quantity = this.session.userData[u].shots.length;
-				this.xexom.userData[email].mean = roundUp(this.xexom.userData[email].sum / this.xexom.userData[email].quantity, 100)
-				this.xexom.userData[email].toBullseyeMean = roundUp(this.xexom.userData[email].toBullseyeMean, 100)
+				this.session.userData[email].quantity = this.rawSession.userData[u].shots.length;
+				this.session.userData[email].mean = roundUp(this.session.userData[email].sum / this.session.userData[email].quantity, 100)
+				this.session.userData[email].toBullseyeMean = roundUp(this.session.userData[email].toBullseyeMean, 100)
 			}
 		}
 	}
@@ -44178,7 +44195,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.xexom.date.getDate())+"/"+_vm._s(_vm.xexom.date.getMonth() + 1)+"/"+_vm._s(_vm.xexom.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.xexom.date.getHours())+":"+_vm._s(_vm.xexom.date.getMinutes() < 10 ? '0'+_vm.xexom.date.getMinutes() : _vm.xexom.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + (_vm.xexom.scenario))}},[_vm._v(_vm._s(_vm.xexom.scenario))])],1)],1),_vm._v(" "),_c('md-layout',_vm._l((_vm.xexom.userData),function(data,user){return _c('md-card',{attrs:{"md-flex":"50"}},[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('div',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot}})],1)})],2)],1)],1)}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getDate())+"/"+_vm._s(_vm.session.date.getMonth() + 1)+"/"+_vm._s(_vm.session.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getHours())+":"+_vm._s(_vm.session.date.getMinutes() < 10 ? '0'+_vm.session.date.getMinutes() : _vm.session.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + _vm.scenario)}},[_vm._v(_vm._s(_vm.scenario))])],1)],1),_vm._v(" "),_c('md-layout',_vm._l((_vm.session.userData),function(data,user){return _c('md-card',{attrs:{"md-flex":"50"}},[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('div',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot}})],1)})],2)],1)],1)}))],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44190,7 +44207,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     hotAPI.reload("data-v-44b32106", __vue__options__)
   }
 })()}
-},{"vue":158,"vue-hot-reload-api":154}],168:[function(require,module,exports){
+},{"firebase":92,"vue":158,"vue-hot-reload-api":154}],168:[function(require,module,exports){
 ;(function(){
 function emptyShot() {
 	return {
@@ -44383,7 +44400,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-primary"},[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("\n\t\t\tScenario info\n\t\t")])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{staticClass:"text",attrs:{"md-column":"","md-gutter":""}},[_c('md-layout',[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.mean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.toBullseyeMean)+"cm")]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean to bullseye")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"shots per user each session"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.userShotsMean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("shots per user")])])],1)],1),_vm._v(" "),_c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',[_vm._v("Best at "+_vm._s(_vm.best.date.getDate())+"/"+_vm._s(_vm.best.date.getMonth() + 1)+"/"+_vm._s(_vm.best.date.getFullYear()))]),_vm._v(" "),_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(_vm.best.user))]),_vm._v(" "),_c('ms-summary',{attrs:{"data":_vm.best}})],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-primary"},[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("\n\t\t\tScenario info\n\t\t")])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{staticClass:"text",attrs:{"md-column":"","md-gutter":""}},[_c('md-layout',[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.mean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.toBullseyeMean)+"cm")]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean to bullseye")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"shots per user each session"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.userShotsMean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("shots per user")])])],1)],1),_vm._v(" "),_c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',[_c('strong',[_vm._v("Record")])]),_vm._v(" "),_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(_vm.best.user)+" ("+_vm._s(_vm.best.date.getDate())+"/"+_vm._s(_vm.best.date.getMonth() + 1)+"/"+_vm._s(_vm.best.date.getFullYear())+")")]),_vm._v(" "),_c('ms-summary',{attrs:{"data":_vm.best}})],1)],1)],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-ef43b0d0"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44394,7 +44411,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-ef43b0d0", __vue__options__)
   } else {
-    hotAPI.reload("data-v-ef43b0d0", __vue__options__)
+    hotAPI.rerender("data-v-ef43b0d0", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],171:[function(require,module,exports){
@@ -44512,6 +44529,7 @@ Vue.component('ms-weapon', require('components/weapon/weapon.vue'))
 // Global pages
 let HomePage = require('pages/home/home.vue')
 let ScenariosPage = require('pages/scenarios/scenarios.vue')
+let SessionPage = require('pages/session/session.vue')
 
 // App routes
 const router = new VueRouter({
@@ -44519,7 +44537,8 @@ const router = new VueRouter({
 	routes: [
 		{path: '/', component: HomePage},
 		{path: '/scenarios', component: ScenariosPage},
-		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)?', component: ScenariosPage, meta: {requiresAuth: true}}
+		{path: '/scenarios/:id([-\\w]+)', component: ScenariosPage},
+		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)', component: SessionPage, meta: {requiresAuth: true}}
 	]
 })
 router.beforeEach((to, from, next) => {
@@ -44546,7 +44565,7 @@ Firebase.auth().onAuthStateChanged(function() { // Just to know that auth() is r
 })
 
 
-},{"../configs/firebase.json":2,"../configs/vue-material-default.json":3,"./main.css":173,"./main.vue":175,"components/guests/guests.vue":160,"components/header/header.vue":161,"components/login/login.vue":162,"components/logout/logout.vue":163,"components/review/review.vue":164,"components/scenario/scenario.vue":165,"components/scenarios/scenarios.vue":166,"components/session/session.vue":167,"components/shot/shot.vue":168,"components/shots/shots.vue":169,"components/stats/stats.vue":170,"components/summary/summary.vue":171,"components/weapon/weapon.vue":172,"firebase":92,"pages/home/home.vue":176,"pages/scenarios/scenarios.vue":177,"vue":158,"vue-material":155,"vue-router":157}],175:[function(require,module,exports){
+},{"../configs/firebase.json":2,"../configs/vue-material-default.json":3,"./main.css":173,"./main.vue":175,"components/guests/guests.vue":160,"components/header/header.vue":161,"components/login/login.vue":162,"components/logout/logout.vue":163,"components/review/review.vue":164,"components/scenario/scenario.vue":165,"components/scenarios/scenarios.vue":166,"components/session/session.vue":167,"components/shot/shot.vue":168,"components/shots/shots.vue":169,"components/stats/stats.vue":170,"components/summary/summary.vue":171,"components/weapon/weapon.vue":172,"firebase":92,"pages/home/home.vue":176,"pages/scenarios/scenarios.vue":177,"pages/session/session.vue":178,"vue":158,"vue-material":155,"vue-router":157}],175:[function(require,module,exports){
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-view')}
@@ -44593,22 +44612,22 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6a6ee5dc", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-6a6ee5dc", __vue__options__)
+    hotAPI.reload("data-v-6a6ee5dc", __vue__options__)
   }
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154}],177:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".fade-enter-active[data-v-0d160dfa] {\n  transition: opacity .5s\n}\n.fade-enter[data-v-0d160dfa], .fade-leave-to[data-v-0d160dfa] /* .fade-leave-active below version 2.1.8 */ {\n  opacity: 0\n}\n\n/* Enter and leave animations can use different */\n/* durations and timing functions.              */\n.slide-fade-enter-active[data-v-0d160dfa] {\n  transition: all 1s ease;\n}\n.slide-fade-leave-active[data-v-0d160dfa] {\n  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);\n}\n.slide-fade-enter[data-v-0d160dfa], .slide-fade-leave-to[data-v-0d160dfa]\n/* .slide-fade-leave-active below version 2.1.8 */ {\n  transform: translateY(-50px);\n  opacity: 0;\n}")
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".fade-enter-active[data-v-0d160dfa] {\n  transition: opacity .5s\n}\n.fade-enter[data-v-0d160dfa], .fade-leave-to[data-v-0d160dfa] /* .fade-leave-active below version 2.1.8 */ {\n  opacity: 0\n}\n\n/* Enter and leave animations can use different */\n/* durations and timing functions.              */\n.slide-fade-enter-active[data-v-0d160dfa] {\n  transition: all 1s ease;\n}\n.slide-fade-leave-active[data-v-0d160dfa] {\n  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);\n}\n.slide-fade-enter[data-v-0d160dfa], .slide-fade-leave-to[data-v-0d160dfa]\n/* .slide-fade-leave-active below version 2.1.8 */ {\n  transform: translateY(50px);\n  opacity: 0;\n}")
 ;(function(){
 var firebase = require('firebase')
 
 function emptySession() {
 	return {
-		date: null, //
+		date: null,
 		userData: {},
 		weapon: {
 			initialCharge: 0,
 			chargeType: ''
-		},
+		}
 	}
 }
 
@@ -44637,13 +44656,13 @@ module.exports = {
 	},
 
 	mounted: function() {
-		this.load(this.$route.params.id, this.$route.params.date)
+		this.load(this.$route.params.id)
 	},
 
 	watch: {
 		'$route': function(to, from) {
 			this.reset()
-			this.load(to.params.id, to.params.date)	
+			this.load(to.params.id)
 		}
 	},
 
@@ -44661,35 +44680,26 @@ module.exports = {
 			this.scenarios = []
 			this.scenarioSessions = []
 			this.session = emptySession()
-			this.sessionUsers = [firebase.auth().currentUser.email]
+			this.sessionUsers = []
+			this.user = firebase.auth().currentUser
 		},
 
-		load: function(id, date) {
+		load: function(id) {
 			this.user = firebase.auth().currentUser
 
-			if (date) {
-				this.loadSession(id, date)
-			} else {
-				if (id) this.loadScenarioSessions(id)
-				this.loadScenarios()
-			}
+			if (id) this.loadScenarioSessions(id)
+			this.loadScenarios(id)
 		},
 
-		loadScenarios: function() {
+		loadScenarios: function(id) {
 			let that = this
-			firebase.database().ref('scenarios').on('value', function(snap) {
-				that.reset()
-				if (snap.val() !== null)
-					that.scenarios = snap.val()
-			})
-		},
-
-		loadSession: function(id, date) {
-			let that = this
-			firebase.database().ref('sessions/' + id + '/' + date).on('value', function(snap) {
-				that.reset()
-				if (snap.val() !== null)
-					that.session = snap.val()
+			firebase.database().ref('scenarios' + (id ? `/${id}`: '')).on('value', function(snap) {
+				if (snap.val() !== null) {
+					if (snap.val().id)
+						that.scenarios = [snap.val()]
+					else
+						that.scenarios = snap.val()
+				}
 			})
 		},
 
@@ -44713,7 +44723,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Scenario' + (_vm.session.scenario ? ': ' + _vm.session.scenario : ''),"postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"fade"}},[(!_vm.onSession && !_vm.session.date)?_c('md-layout',{key:"new",attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"75","md-align":"center"}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}}),_vm._v(" "),_c('ms-scenario',{attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1)],1):_vm._e(),_vm._v(" "),(!_vm.onSession && _vm.session.date)?_c('md-layout',{key:"review",attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"75","md-align":"center"}},[_c('ms-session',{attrs:{"session":_vm.session}})],1)],1):_vm._e()],1),_vm._v(" "),(_vm.onSession)?_c('md-layout',{attrs:{"md-gutter":"","md-column-xsmall":"","md-vertical-align":"start"}},[_c('md-layout',{attrs:{"md-column":""}},[_c('md-layout',{attrs:{"md-column-xsmall":"","md-column-small":""}},[_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-weapon',{attrs:{"session":_vm.session}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-guests',{attrs:{"guests":_vm.sessionUsers}})],1)],1),_vm._v(" "),_vm._l((_vm.sessionUsers),function(user){return _c('ms-shots',{key:user,attrs:{"user":user,"on-save":_vm.saveShots}})})],2),_vm._v(" "),_c('md-layout',{attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss}})}))],1)],1):_vm._e()],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Scenario' + (_vm.session.scenario ? ': ' + _vm.session.scenario : ''),"postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),(!_vm.onSession && !_vm.$route.params.id)?_c('transition-group',{attrs:{"name":"fade"}},[_c('md-layout',{key:"new",attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"75","md-align":"center"}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}}),_vm._v(" "),_c('ms-scenario',{attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1)],1)],1):_c('md-layout',{attrs:{"md-gutter":"","md-column-xsmall":"","md-vertical-align":"start"}},[(_vm.onSession)?_c('md-layout',{attrs:{"md-column":""}},[_c('md-layout',{attrs:{"md-column-xsmall":"","md-column-small":""}},[_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-weapon',{attrs:{"session":_vm.session}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-guests',{attrs:{"guests":_vm.sessionUsers}})],1)],1),_vm._v(" "),_vm._l((_vm.sessionUsers),function(user){return _c('ms-shots',{key:user,attrs:{"user":user,"on-save":_vm.saveShots}})})],2):_c('md-layout',{attrs:{"md-column":""}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss}})}))],1)],1)],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-0d160dfa"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44727,4 +44737,25 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     hotAPI.reload("data-v-0d160dfa", __vue__options__)
   }
 })()}
-},{"firebase":92,"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}]},{},[174]);
+},{"firebase":92,"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],178:[function(require,module,exports){
+;(function(){
+module.exports = {
+	
+}
+})()
+if (module.exports.__esModule) module.exports = module.exports.default
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":"Session","postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),_c('ms-session',{attrs:{"scenario":_vm.$route.params.id,"date":_vm.$route.params.date}})],1)}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-33637c40", __vue__options__)
+  } else {
+    hotAPI.rerender("data-v-33637c40", __vue__options__)
+  }
+})()}
+},{"vue":158,"vue-hot-reload-api":154}]},{},[174]);

@@ -4,19 +4,19 @@
 			<md-card-header>
 				<md-card-header-text>
 					<div class="md-title">
-						<span>{{xexom.date.getDate()}}/{{xexom.date.getMonth() + 1}}/{{xexom.date.getFullYear()}}</span>
+						<span>{{session.date.getDate()}}/{{session.date.getMonth() + 1}}/{{session.date.getFullYear()}}</span>
 					</div>
 					<div class="md-subhead">
-						<span>{{xexom.date.getHours()}}:{{xexom.date.getMinutes() < 10 ? '0'+xexom.date.getMinutes() : xexom.date.getMinutes()}}</span>
+						<span>{{session.date.getHours()}}:{{session.date.getMinutes() < 10 ? '0'+session.date.getMinutes() : session.date.getMinutes()}}</span>
 					</div>
 				</md-card-header-text>
 
-				<router-link v-bind:to="`/scenarios/${xexom.scenario}`">{{xexom.scenario}}</router-link>
+				<router-link v-bind:to="`/scenarios/${scenario}`">{{scenario}}</router-link>
 			</md-card-header>
 		</md-card>
 
 		<md-layout>
-			<md-card md-flex="50" v-for="(data, user) in xexom.userData">
+			<md-card md-flex="50" v-for="(data, user) in session.userData">
 				<md-card-content>
 					<md-layout md-gutter md-column>
 						<div title="user">{{user}}</div>

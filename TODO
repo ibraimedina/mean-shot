@@ -4,6 +4,7 @@ Change session/ to scenario/ in firebase
 
 Feedback if has user logged, including disabled buttons, forbidden pages, forbid db changes, etc.
 User dashboard page (scenarios shot, mean on each of then, dates, click to start session at that scenario)
+Custom measure unit per scenario: cm, points, fps... Add more than one per scenario? 6m-home uses points and cm precision
 
 Lint code
 Separate API from components in different files

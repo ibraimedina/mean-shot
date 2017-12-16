@@ -44100,7 +44100,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-3bea2bc0", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-3bea2bc0", __vue__options__)
+    hotAPI.reload("data-v-3bea2bc0", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}],167:[function(require,module,exports){
@@ -44411,7 +44411,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-ef43b0d0", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-ef43b0d0", __vue__options__)
+    hotAPI.reload("data-v-ef43b0d0", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],171:[function(require,module,exports){
@@ -44530,6 +44530,7 @@ Vue.component('ms-weapon', require('components/weapon/weapon.vue'))
 let HomePage = require('pages/home/home.vue')
 let ScenariosPage = require('pages/scenarios/scenarios.vue')
 let SessionPage = require('pages/session/session.vue')
+let NotFoundPage = require('pages/notfound/notfound.vue')
 
 // App routes
 const router = new VueRouter({
@@ -44538,7 +44539,9 @@ const router = new VueRouter({
 		{path: '/', component: HomePage},
 		{path: '/scenarios', component: ScenariosPage},
 		{path: '/scenarios/:id([-\\w]+)', component: ScenariosPage},
-		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)', component: SessionPage, meta: {requiresAuth: true}}
+		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)', component: SessionPage, meta: {requiresAuth: true}},
+
+		{path: '*', component: NotFoundPage}
 	]
 })
 router.beforeEach((to, from, next) => {
@@ -44565,7 +44568,7 @@ Firebase.auth().onAuthStateChanged(function() { // Just to know that auth() is r
 })
 
 
-},{"../configs/firebase.json":2,"../configs/vue-material-default.json":3,"./main.css":173,"./main.vue":175,"components/guests/guests.vue":160,"components/header/header.vue":161,"components/login/login.vue":162,"components/logout/logout.vue":163,"components/review/review.vue":164,"components/scenario/scenario.vue":165,"components/scenarios/scenarios.vue":166,"components/session/session.vue":167,"components/shot/shot.vue":168,"components/shots/shots.vue":169,"components/stats/stats.vue":170,"components/summary/summary.vue":171,"components/weapon/weapon.vue":172,"firebase":92,"pages/home/home.vue":176,"pages/scenarios/scenarios.vue":177,"pages/session/session.vue":178,"vue":158,"vue-material":155,"vue-router":157}],175:[function(require,module,exports){
+},{"../configs/firebase.json":2,"../configs/vue-material-default.json":3,"./main.css":173,"./main.vue":175,"components/guests/guests.vue":160,"components/header/header.vue":161,"components/login/login.vue":162,"components/logout/logout.vue":163,"components/review/review.vue":164,"components/scenario/scenario.vue":165,"components/scenarios/scenarios.vue":166,"components/session/session.vue":167,"components/shot/shot.vue":168,"components/shots/shots.vue":169,"components/stats/stats.vue":170,"components/summary/summary.vue":171,"components/weapon/weapon.vue":172,"firebase":92,"pages/home/home.vue":176,"pages/notfound/notfound.vue":177,"pages/scenarios/scenarios.vue":178,"pages/session/session.vue":179,"vue":158,"vue-material":155,"vue-router":157}],175:[function(require,module,exports){
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
 __vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('router-view')}
@@ -44616,6 +44619,21 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   }
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154}],177:[function(require,module,exports){
+var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
+if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":"Wrong way!"}}),_vm._v(" "),_c('md-layout',{attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"50","md-align":"center"}},[_c('md-card',[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("Wrong way!")]),_vm._v(" "),_c('div',{staticClass:"md-subtitle"},[_vm._v("Where do you wanna shoot?")])]),_vm._v(" "),_c('md-card-actions',[_c('router-link',{attrs:{"to":"/scenarios"}},[_c('md-button',[_vm._v("Scenarios")])],1)],1),_vm._v(" "),_c('md-card-media',[_c('md-image',{attrs:{"md-src":"/img/badposition.jpg","alt":"Wrong way!"}})],1)],1)],1)],1)],1)}
+__vue__options__.staticRenderFns = []
+if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-6f26ffdc", __vue__options__)
+  } else {
+    hotAPI.rerender("data-v-6f26ffdc", __vue__options__)
+  }
+})()}
+},{"vue":158,"vue-hot-reload-api":154}],178:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".fade-enter-active[data-v-0d160dfa] {\n  transition: opacity .5s\n}\n.fade-enter[data-v-0d160dfa], .fade-leave-to[data-v-0d160dfa] /* .fade-leave-active below version 2.1.8 */ {\n  opacity: 0\n}\n\n/* Enter and leave animations can use different */\n/* durations and timing functions.              */\n.slide-fade-enter-active[data-v-0d160dfa] {\n  transition: all 1s ease;\n}\n.slide-fade-leave-active[data-v-0d160dfa] {\n  transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);\n}\n.slide-fade-enter[data-v-0d160dfa], .slide-fade-leave-to[data-v-0d160dfa]\n/* .slide-fade-leave-active below version 2.1.8 */ {\n  transform: translateY(50px);\n  opacity: 0;\n}")
 ;(function(){
 var firebase = require('firebase')
@@ -44737,7 +44755,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     hotAPI.reload("data-v-0d160dfa", __vue__options__)
   }
 })()}
-},{"firebase":92,"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],178:[function(require,module,exports){
+},{"firebase":92,"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],179:[function(require,module,exports){
 ;(function(){
 module.exports = {
 	
@@ -44755,7 +44773,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-33637c40", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-33637c40", __vue__options__)
+    hotAPI.reload("data-v-33637c40", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}]},{},[174]);

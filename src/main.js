@@ -38,6 +38,7 @@ Vue.component('ms-weapon', require('components/weapon/weapon.vue'))
 let HomePage = require('pages/home/home.vue')
 let ScenariosPage = require('pages/scenarios/scenarios.vue')
 let SessionPage = require('pages/session/session.vue')
+let NotFoundPage = require('pages/notfound/notfound.vue')
 
 // App routes
 const router = new VueRouter({
@@ -46,7 +47,9 @@ const router = new VueRouter({
 		{path: '/', component: HomePage},
 		{path: '/scenarios', component: ScenariosPage},
 		{path: '/scenarios/:id([-\\w]+)', component: ScenariosPage},
-		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)', component: SessionPage, meta: {requiresAuth: true}}
+		{path: '/scenarios/:id([-\\w]+)/:date(\\d+)', component: SessionPage, meta: {requiresAuth: true}},
+
+		{path: '*', component: NotFoundPage}
 	]
 })
 router.beforeEach((to, from, next) => {

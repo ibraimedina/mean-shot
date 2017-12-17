@@ -5,8 +5,8 @@
 	<div>
 		<ms-header prefix="Wrong way!"></ms-header>
 
-		<md-layout md-column-xsmall md-align="center">
-			<md-layout md-flex-xsmall="100" md-flex="50" md-align="center">
+		<md-layout md-align="center">
+			<md-layout md-flex-xsmall="70" md-flex-small="40" md-flex-medium="30" md-flex-large="25" md-align="center">
 				<md-card>
 					<md-card-header>
 						<div class="md-title">Wrong way!</div>

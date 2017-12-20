@@ -20,7 +20,7 @@
 			</md-card-content>
 			
 			<md-card-actions>
-				<md-button type="submit">Add</md-button>
+				<md-button type="submit" class="md-accent">Add</md-button>
 			</md-card-actions>
 		</form>
 

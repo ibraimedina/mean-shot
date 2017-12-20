@@ -2,13 +2,23 @@ module.exports = {
 	props: [
 		'data'
 			// {
-			// 	mean: 0,
-			// 	quantity: 0,
-			// 	sum: 0,
-			// 	toBullseyeMean: 0,
-			// 	toBullseyeMax: 0,
-			// 	toBullseyeMin: Infinity
+			//		criteria
+			//		highlights: {
+			// 		quantity
+			//			max
+			// 		mean
+			//			min
+			// 		sum
+			//			unit
+			//			summary
+			// 	}
 			// }
 		, 'lighter'	
-	]
+	],
+
+	methods: {
+		roundUp: function(num, precision) {
+		  return Math.ceil(num * precision) / precision
+		}
+	}
 }

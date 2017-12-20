@@ -2,27 +2,78 @@ function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
 
-function emptyBest() {
+function emptyCriteriaData() {
 	return {
-		date: new Date(),
-		mean: 0,
-		quantity: 0,
+		max: null,
+		mean: null,
+		min: Infinity,
 		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: 0,
-		user: ""
+		summary: '',
+		unit: ''
 	}
 }
 
 function emptyUserData() {
 	return {
-		mean: 0,
-		quantity: 0,
-		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: Infinity
+		criterias: {},
+		quantity: 0
+	}
+}
+
+function resumeUserData(shots) {
+	let uData = emptyUserData()
+	uData.quantity = shots.length
+
+	for (s in shots) {
+		let shot = shots[s]
+		for (c in shot) {
+			uData.criterias[c] = uData.criterias[c] || emptyCriteriaData()
+			uData.criterias[c].sum += shot[c]
+			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
+			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
+			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
+			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].summary = criteriaSummary(c, uData)
+		}
+	}
+
+	return uData
+}
+
+// TODO: implement this to the user!
+function criteriaIsBetter(criteria, oldBest, newBest) {
+	if (!newBest.mean) return false
+	else if (!oldBest.mean) return true
+
+	switch (criteria) {
+		case 'toBullseye':
+			return newBest.mean < oldBest.mean 
+		case 'score':
+		default:
+			return newBest.mean > oldBest.mean
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaUnit(criteria) {
+	switch(criteria) {
+		case 'toBullseye':
+			return 'cm'
+		case 'score':
+		default:
+			return ''
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaSummary(criteria, data) {
+	switch(criteria) {
+		case 'score':
+			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+		case 'toBullseye':
+			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+		default:
+			return `mean in ${data.quantity} shots`
 	}
 }
 
@@ -35,58 +86,54 @@ module.exports = {
 
 	data: function() {
 		return {
-			best: emptyBest(),
-			mean: 0,
+			bests: {},
+			means: {},
 			userShotsMean: 0,
-			toBullseyeMean: 0,
 		}
 	},
 
 	methods: {
 		reset: function() {
-			this.best = emptyBest()
-			this.mean = 0
+			this.bests = {}
+			this.means = {}
 			this.userShotsMean = 0
-			this.toBullseyeMean = 0
 		},
 
 		render: function() {
-			let totalShots = 0, totalUsers = 0
+			let totalShots = 0, totalUsers = 0, criterias = []
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
 				for (u in session.userData) {
-					let uData = emptyUserData()
-					totalUsers++
-					
-					for (s in session.userData[u].shots) {
-						let shot = session.userData[u].shots[s]
-						totalShots++
-						uData.sum += shot.score
-						uData.toBullseyeMean = (uData.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-						if (uData.toBullseyeMin > shot.toBullseye) uData.toBullseyeMin = shot.toBullseye
-						if (uData.toBullseyeMax < shot.toBullseye) uData.toBullseyeMax = shot.toBullseye
-						this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-						this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					uData = resumeUserData(session.userData[u].shots)
+
+					for (c in uData.criterias) {
+						this.bests[c] = this.bests[c] || emptyCriteriaData()
+						if (criteriaIsBetter(c, this.bests[c], uData.criterias[c])) {
+							this.bests[c] = {
+								date: new Date(session.date),
+								quantity: uData.quantity,
+								user: decodeUserEmail(u)
+							}
+							for (m in emptyCriteriaData()) {
+								this.bests[c][m] = uData.criterias[c][m]
+							}
+						}
+
+						this.means[c] = this.means[c] || emptyCriteriaData()
+						this.means[c].mean = (this.means[c].mean*totalShots + uData.criterias[c].sum) / (totalShots + uData.quantity)
+						this.means[c].unit = this.means[c].unit || uData.criterias[c].unit
+						if (criterias.indexOf(c) == -1) criterias.push(c)
 					}
 
-					uData.mean = roundUp(uData.sum / session.userData[u].shots.length, 100)
-					if (uData.mean > this.best.mean) {
-						this.best = {
-							date: new Date(session.date),
-							mean: uData.mean,
-							quantity: session.userData[u].shots.length,
-							sum: uData.sum,
-							toBullseyeMean: roundUp(uData.toBullseyeMean, 100),
-							toBullseyeMax: uData.toBullseyeMax,
-							toBullseyeMin: uData.toBullseyeMin,
-							user: decodeUserEmail(u)
-						}
-					}
+					totalUsers++
+					totalShots += session.userData[u].shots.length
 				}
 			}
-			this.mean = roundUp(this.mean, 100)
+
+			for (c in criterias) {
+				this.means[criterias[c]].mean = roundUp(this.means[criterias[c]].mean, 100)
+			}
 			this.userShotsMean = totalUsers && roundUp(totalShots / totalUsers, 1)
-			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},
 

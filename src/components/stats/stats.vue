@@ -18,17 +18,11 @@
 		</md-card-header>
 
 		<md-card-content>
-			
 			<md-layout md-column md-gutter class="text">
 				<md-layout>
-					<md-layout md-column title="mean">
-						<span class="text-value">{{mean}}</span>
-						<span class="text-secondary">mean</span>
-					</md-layout>
-
-					<md-layout md-column title="mean to bullseye">
-						<span class="text-value">{{toBullseyeMean}}cm</span>
-						<span class="text-secondary">mean to bullseye</span>
+					<md-layout md-column v-for="(m, criteria) in means" v-bind:title="criteria">
+						<span class="text-value">{{m.mean}}{{m.unit}}</span>
+						<span class="text-secondary">{{criteria}} mean</span>
 					</md-layout>
 
 					<md-layout md-column title="shots per user each session">
@@ -38,12 +32,21 @@
 				</md-layout>
 			</md-layout>
 
-			<md-layout md-gutter md-column class="text">
-				<div><strong>Record</strong></div>
-				<div title="user" class="text-user">{{best.user}} ({{best.date.getDate()}}/{{best.date.getMonth() + 1}}/{{best.date.getFullYear()}})</div>
-				<ms-summary v-bind:data="best"></ms-summary>
+			<md-layout md-gutter md-column class="text" v-for="(highlights, criteria) in bests">
+				<div>
+					<strong>{{criteria}} record</strong>
+				</div>
+				
+				<div title="user" class="text-user">
+					{{highlights.user}}
+					({{highlights.date.getDate()}}/{{highlights.date.getMonth() + 1}}/{{highlights.date.getFullYear()}})
+				</div>
+				
+				<!-- bests: { // bests = criterias
+					criteria: highlights
+				} -->
+				<ms-summary v-bind:data="{[criteria]: highlights}"></ms-summary>
 			</md-layout>
-
 		</md-card-content>
 	</md-card>
 </template>

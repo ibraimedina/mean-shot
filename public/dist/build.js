@@ -43751,7 +43751,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Add user to session")])]),_vm._v(" "),_c('form',{attrs:{"action":"javascript:void(0);"},on:{"submit":_vm.add}},[_c('md-card-content',[_c('md-input-container',[_c('label',[_vm._v("Guest")]),_vm._v(" "),_c('md-input',{model:{value:(_vm.guest),callback:function ($$v) {_vm.guest=$$v},expression:"guest"}})],1)],1),_vm._v(" "),_c('md-card-actions',[_c('md-button',{attrs:{"type":"submit"}},[_vm._v("Add")])],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Add user to session")])]),_vm._v(" "),_c('form',{attrs:{"action":"javascript:void(0);"},on:{"submit":_vm.add}},[_c('md-card-content',[_c('md-input-container',[_c('label',[_vm._v("Guest")]),_vm._v(" "),_c('md-input',{model:{value:(_vm.guest),callback:function ($$v) {_vm.guest=$$v},expression:"guest"}})],1)],1),_vm._v(" "),_c('md-card-actions',[_c('md-button',{staticClass:"md-accent",attrs:{"type":"submit"}},[_vm._v("Add")])],1)],1)],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-f7b28e90"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -43762,7 +43762,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-f7b28e90", __vue__options__)
   } else {
-    hotAPI.reload("data-v-f7b28e90", __vue__options__)
+    hotAPI.rerender("data-v-f7b28e90", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],161:[function(require,module,exports){
@@ -43886,7 +43886,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   }
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154}],164:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".md-card[data-v-22cd0a18] {\n\twidth: 100%;\n}\n\n.text[data-v-22cd0a18] {\n\tmargin-bottom: 10px;\n\ttext-align: center;\n}\n.text-user[data-v-22cd0a18] {\n}\n.text-title[data-v-22cd0a18] {\n}")
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("/*.md-card {\n\twidth: 100%;\n}*/\n\n.text[data-v-22cd0a18] {\n\tmargin-bottom: 10px;\n\ttext-align: center;\n}\n.text-user[data-v-22cd0a18] {\n}\n.text-title[data-v-22cd0a18] {\n}")
 ;(function(){
 var firebase = require('firebase')
 
@@ -43901,14 +43901,64 @@ function emptyReview() {
 	}
 }
 
+function emptyCriteriaData() {
+	return {
+		max: null,
+		mean: null,
+		min: Infinity,
+		sum: 0,
+		summary: '',
+		unit: ''
+	}
+}
+
 function emptyUserData() {
 	return {
-		mean: 0,
-		quantity: 0,
-		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: Infinity
+		criterias: {},
+		quantity: 0
+	}
+}
+
+function resumeUserData(shots) {
+	let uData = emptyUserData()
+	uData.quantity = shots.length
+
+	for (s in shots) {
+		let shot = shots[s]
+		for (c in shot) {
+			uData.criterias[c] = uData.criterias[c] || emptyCriteriaData()
+			uData.criterias[c].sum += shot[c]
+			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
+			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
+			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
+			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].summary = criteriaSummary(c, uData)
+		}
+	}
+
+	return uData
+}
+
+// TODO: implement this to the user!
+function criteriaUnit(criteria) {
+	switch(criteria) {
+		case 'toBullseye':
+			return 'cm'
+		case 'score':
+		default:
+			return ''
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaSummary(criteria, data) {
+	switch(criteria) {
+		case 'score':
+			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+		case 'toBullseye':
+			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+		default:
+			return `mean in ${data.quantity} shots`
 	}
 }
 
@@ -43934,17 +43984,7 @@ module.exports = {
 
 			for (u in this.session.userData) {
 				let user = decodeUserEmail(u)
-				this.users[user] = emptyUserData()
-				for (s in this.session.userData[u].shots) {
-					let shot = this.session.userData[u].shots[s]
-					this.users[user].sum += shot.score
-					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
-					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
-				}
-				this.users[user].quantity = this.session.userData[u].shots.length;
-				this.users[user].mean = roundUp(this.users[user].sum / this.users[user].quantity, 100)
-				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
+				this.users[user] = resumeUserData(this.session.userData[u].shots)
 			}
 		}
 	},
@@ -43966,7 +44006,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('router-link',{key:_vm.session.date,attrs:{"to":("/scenarios/" + (_vm.session.scenario) + "/" + (_vm.session.date))}},[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])])],1),_vm._v(" "),_c('md-card-content',_vm._l((_vm.users),function(data,user){return _c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data}})],1)}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('router-link',{key:_vm.session.date,attrs:{"to":("/scenarios/" + (_vm.session.scenario) + "/" + (_vm.session.date))}},[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.date.getDate())+"/"+_vm._s(_vm.date.getMonth() + 1)+"/"+_vm._s(_vm.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.date.getHours())+":"+_vm._s(_vm.date.getMinutes() < 10 ? '0'+_vm.date.getMinutes() : _vm.date.getMinutes()))])])])],1),_vm._v(" "),_c('md-card-content',_vm._l((_vm.users),function(data,user){return _c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data.criterias}})],1)}))],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-22cd0a18"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44091,7 +44131,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.scenarios)?_c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Start a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('div',{staticClass:"md-list-text-container"},[_c('router-link',{attrs:{"to":'/scenarios/' + sc.id}},[_vm._v(_vm._s(sc.id))])],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-primary"},[_vm._v("play_arrow")])],1)],1)}))],1)],1)],1):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.scenarios)?_c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Start a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('div',{staticClass:"md-list-text-container",attrs:{"title":'go to ' + sc.id}},[_c('router-link',{attrs:{"to":'/scenarios/' + sc.id}},[_vm._v(_vm._s(sc.id))])],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-accent"},[_vm._v("play_arrow")])],1)],1)}))],1)],1)],1):_vm._e()}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44100,7 +44140,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-3bea2bc0", __vue__options__)
   } else {
-    hotAPI.reload("data-v-3bea2bc0", __vue__options__)
+    hotAPI.rerender("data-v-3bea2bc0", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}],167:[function(require,module,exports){
@@ -44122,14 +44162,64 @@ function emptySession() {
 	}
 }
 
+function emptyCriteriaData() {
+	return {
+		max: null,
+		mean: null,
+		min: Infinity,
+		sum: 0,
+		summary: '',
+		unit: ''
+	}
+}
+
 function emptyUserData() {
 	return {
-		mean: 0,
-		quantity: 0,
-		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: Infinity
+		criterias: {},
+		quantity: 0
+	}
+}
+
+function resumeUserData(shots) {
+	let uData = emptyUserData()
+	uData.quantity = shots.length
+
+	for (s in shots) {
+		let shot = shots[s]
+		for (c in shot) {
+			uData.criterias[c] = uData.criterias[c] || emptyCriteriaData()
+			uData.criterias[c].sum += shot[c]
+			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
+			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
+			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
+			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].summary = criteriaSummary(c, uData)
+		}
+	}
+
+	return uData
+}
+
+// TODO: implement this to the user!
+function criteriaUnit(criteria) {
+	switch(criteria) {
+		case 'toBullseye':
+			return 'cm'
+		case 'score':
+		default:
+			return ''
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaSummary(criteria, data) {
+	switch(criteria) {
+		case 'score':
+			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+		case 'toBullseye':
+			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+		default:
+			return `mean in ${data.quantity} shots`
 	}
 }
 
@@ -44175,18 +44265,8 @@ module.exports = {
 		render: function() {
 			for (u in this.rawSession.userData) {
 				let email = decodeUserEmail(u)
-				this.session.userData[email] = emptyUserData()
+				this.session.userData[email] = resumeUserData(this.rawSession.userData[u].shots)
 				this.session.userData[email].shots = this.rawSession.userData[u].shots
-				for (s in this.rawSession.userData[u].shots) {
-					let shot = this.rawSession.userData[u].shots[s]
-					this.session.userData[email].sum += shot.score
-					this.session.userData[email].toBullseyeMean = (this.session.userData[email].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					if (this.session.userData[email].toBullseyeMin > shot.toBullseye) this.session.userData[email].toBullseyeMin = shot.toBullseye
-					if (this.session.userData[email].toBullseyeMax < shot.toBullseye) this.session.userData[email].toBullseyeMax = shot.toBullseye
-				}
-				this.session.userData[email].quantity = this.rawSession.userData[u].shots.length;
-				this.session.userData[email].mean = roundUp(this.session.userData[email].sum / this.session.userData[email].quantity, 100)
-				this.session.userData[email].toBullseyeMean = roundUp(this.session.userData[email].toBullseyeMean, 100)
 			}
 		}
 	}
@@ -44195,7 +44275,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getDate())+"/"+_vm._s(_vm.session.date.getMonth() + 1)+"/"+_vm._s(_vm.session.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getHours())+":"+_vm._s(_vm.session.date.getMinutes() < 10 ? '0'+_vm.session.date.getMinutes() : _vm.session.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + _vm.scenario)}},[_vm._v(_vm._s(_vm.scenario))])],1)],1),_vm._v(" "),_c('md-layout',_vm._l((_vm.session.userData),function(data,user){return _c('md-card',{attrs:{"md-flex":"50"}},[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('div',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot}})],1)})],2)],1)],1)}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getDate())+"/"+_vm._s(_vm.session.date.getMonth() + 1)+"/"+_vm._s(_vm.session.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getHours())+":"+_vm._s(_vm.session.date.getMinutes() < 10 ? '0'+_vm.session.date.getMinutes() : _vm.session.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + _vm.scenario)}},[_vm._v(_vm._s(_vm.scenario))])],1)],1),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":""}},_vm._l((_vm.session.userData),function(data,user){return _c('md-card',[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('div',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data.criterias}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot}})],1)})],2)],1)],1)}))],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44296,27 +44376,78 @@ function roundUp(num, precision) {
   return Math.ceil(num * precision) / precision
 }
 
-function emptyBest() {
+function emptyCriteriaData() {
 	return {
-		date: new Date(),
-		mean: 0,
-		quantity: 0,
+		max: null,
+		mean: null,
+		min: Infinity,
 		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: 0,
-		user: ""
+		summary: '',
+		unit: ''
 	}
 }
 
 function emptyUserData() {
 	return {
-		mean: 0,
-		quantity: 0,
-		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: Infinity
+		criterias: {},
+		quantity: 0
+	}
+}
+
+function resumeUserData(shots) {
+	let uData = emptyUserData()
+	uData.quantity = shots.length
+
+	for (s in shots) {
+		let shot = shots[s]
+		for (c in shot) {
+			uData.criterias[c] = uData.criterias[c] || emptyCriteriaData()
+			uData.criterias[c].sum += shot[c]
+			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
+			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
+			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
+			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].summary = criteriaSummary(c, uData)
+		}
+	}
+
+	return uData
+}
+
+// TODO: implement this to the user!
+function criteriaIsBetter(criteria, oldBest, newBest) {
+	if (!newBest.mean) return false
+	else if (!oldBest.mean) return true
+
+	switch (criteria) {
+		case 'toBullseye':
+			return newBest.mean < oldBest.mean 
+		case 'score':
+		default:
+			return newBest.mean > oldBest.mean
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaUnit(criteria) {
+	switch(criteria) {
+		case 'toBullseye':
+			return 'cm'
+		case 'score':
+		default:
+			return ''
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaSummary(criteria, data) {
+	switch(criteria) {
+		case 'score':
+			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+		case 'toBullseye':
+			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+		default:
+			return `mean in ${data.quantity} shots`
 	}
 }
 
@@ -44329,58 +44460,54 @@ module.exports = {
 
 	data: function() {
 		return {
-			best: emptyBest(),
-			mean: 0,
+			bests: {},
+			means: {},
 			userShotsMean: 0,
-			toBullseyeMean: 0,
 		}
 	},
 
 	methods: {
 		reset: function() {
-			this.best = emptyBest()
-			this.mean = 0
+			this.bests = {}
+			this.means = {}
 			this.userShotsMean = 0
-			this.toBullseyeMean = 0
 		},
 
 		render: function() {
-			let totalShots = 0, totalUsers = 0
+			let totalShots = 0, totalUsers = 0, criterias = []
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
 				for (u in session.userData) {
-					let uData = emptyUserData()
-					totalUsers++
-					
-					for (s in session.userData[u].shots) {
-						let shot = session.userData[u].shots[s]
-						totalShots++
-						uData.sum += shot.score
-						uData.toBullseyeMean = (uData.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-						if (uData.toBullseyeMin > shot.toBullseye) uData.toBullseyeMin = shot.toBullseye
-						if (uData.toBullseyeMax < shot.toBullseye) uData.toBullseyeMax = shot.toBullseye
-						this.mean = (this.mean * Number(s) + shot.score) / (Number(s) + 1)
-						this.toBullseyeMean = (this.toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
+					uData = resumeUserData(session.userData[u].shots)
+
+					for (c in uData.criterias) {
+						this.bests[c] = this.bests[c] || emptyCriteriaData()
+						if (criteriaIsBetter(c, this.bests[c], uData.criterias[c])) {
+							this.bests[c] = {
+								date: new Date(session.date),
+								quantity: uData.quantity,
+								user: decodeUserEmail(u)
+							}
+							for (m in emptyCriteriaData()) {
+								this.bests[c][m] = uData.criterias[c][m]
+							}
+						}
+
+						this.means[c] = this.means[c] || emptyCriteriaData()
+						this.means[c].mean = (this.means[c].mean*totalShots + uData.criterias[c].sum) / (totalShots + uData.quantity)
+						this.means[c].unit = this.means[c].unit || uData.criterias[c].unit
+						if (criterias.indexOf(c) == -1) criterias.push(c)
 					}
 
-					uData.mean = roundUp(uData.sum / session.userData[u].shots.length, 100)
-					if (uData.mean > this.best.mean) {
-						this.best = {
-							date: new Date(session.date),
-							mean: uData.mean,
-							quantity: session.userData[u].shots.length,
-							sum: uData.sum,
-							toBullseyeMean: roundUp(uData.toBullseyeMean, 100),
-							toBullseyeMax: uData.toBullseyeMax,
-							toBullseyeMin: uData.toBullseyeMin,
-							user: decodeUserEmail(u)
-						}
-					}
+					totalUsers++
+					totalShots += session.userData[u].shots.length
 				}
 			}
-			this.mean = roundUp(this.mean, 100)
+
+			for (c in criterias) {
+				this.means[criterias[c]].mean = roundUp(this.means[criterias[c]].mean, 100)
+			}
 			this.userShotsMean = totalUsers && roundUp(totalShots / totalUsers, 1)
-			this.toBullseyeMean = roundUp(this.toBullseyeMean, 100)
 		}
 	},
 
@@ -44400,7 +44527,8 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-primary"},[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("\n\t\t\tScenario info\n\t\t")])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{staticClass:"text",attrs:{"md-column":"","md-gutter":""}},[_c('md-layout',[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.mean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.toBullseyeMean)+"cm")]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("mean to bullseye")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"shots per user each session"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.userShotsMean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("shots per user")])])],1)],1),_vm._v(" "),_c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',[_c('strong',[_vm._v("Record")])]),_vm._v(" "),_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v(_vm._s(_vm.best.user)+" ("+_vm._s(_vm.best.date.getDate())+"/"+_vm._s(_vm.best.date.getMonth() + 1)+"/"+_vm._s(_vm.best.date.getFullYear())+")")]),_vm._v(" "),_c('ms-summary',{attrs:{"data":_vm.best}})],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',{staticClass:"md-primary"},[_c('md-card-header',[_c('div',{staticClass:"md-title"},[_vm._v("\n\t\t\tScenario info\n\t\t")])]),_vm._v(" "),_c('md-card-content',[_c('md-layout',{staticClass:"text",attrs:{"md-column":"","md-gutter":""}},[_c('md-layout',[_vm._l((_vm.means),function(m,criteria){return _c('md-layout',{attrs:{"md-column":"","title":criteria}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(m.mean)+_vm._s(m.unit))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(criteria)+" mean")])])}),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"shots per user each session"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.userShotsMean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("shots per user")])])],2)],1),_vm._v(" "),_vm._l((_vm.bests),function(highlights,criteria){return _c('md-layout',{staticClass:"text",attrs:{"md-gutter":"","md-column":""}},[_c('div',[_c('strong',[_vm._v(_vm._s(criteria)+" record")])]),_vm._v(" "),_c('div',{staticClass:"text-user",attrs:{"title":"user"}},[_vm._v("\n\t\t\t\t"+_vm._s(highlights.user)+"\n\t\t\t\t("+_vm._s(highlights.date.getDate())+"/"+_vm._s(highlights.date.getMonth() + 1)+"/"+_vm._s(highlights.date.getFullYear())+")\n\t\t\t")]),_vm._v(" "),_c('ms-summary',{attrs:{"data":( _obj = {}, _obj[criteria] = highlights, _obj )}})],1)
+var _obj;})],2)],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-ef43b0d0"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44421,21 +44549,31 @@ module.exports = {
 	props: [
 		'data'
 			// {
-			// 	mean: 0,
-			// 	quantity: 0,
-			// 	sum: 0,
-			// 	toBullseyeMean: 0,
-			// 	toBullseyeMax: 0,
-			// 	toBullseyeMin: Infinity
+			//		criteria
+			//		highlights: {
+			// 		quantity
+			//			max
+			// 		mean
+			//			min
+			// 		sum
+			//			unit
+			//			summary
+			// 	}
 			// }
 		, 'lighter'	
-	]
+	],
+
+	methods: {
+		roundUp: function(num, precision) {
+		  return Math.ceil(num * precision) / precision
+		}
+	}
 }
 })()
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',[_c('md-layout',{attrs:{"md-column":"","title":"mean"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.data.mean))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v("scored "+_vm._s(_vm.data.sum)+" from "+_vm._s(_vm.data.quantity)+" shots")])]),_vm._v(" "),_c('md-layout',{attrs:{"md-column":"","title":"mean to bullseye"}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.data.toBullseyeMean)+"cm")]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(_vm.data.toBullseyeMin)+"cm - "+_vm._s(_vm.data.toBullseyeMax)+"cm")])])],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('md-layout',_vm._l((_vm.data),function(highlights,criteria){return _c('md-layout',{attrs:{"md-column":"","title":criteria}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.roundUp(highlights.mean, 100))+_vm._s(highlights.unit))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(highlights.summary))])])}))],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-31074b26"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44446,7 +44584,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-31074b26", __vue__options__)
   } else {
-    hotAPI.reload("data-v-31074b26", __vue__options__)
+    hotAPI.rerender("data-v-31074b26", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],172:[function(require,module,exports){
@@ -44630,7 +44768,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6f26ffdc", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-6f26ffdc", __vue__options__)
+    hotAPI.reload("data-v-6f26ffdc", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}],178:[function(require,module,exports){

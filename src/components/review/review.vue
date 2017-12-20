@@ -1,7 +1,7 @@
 <style scoped>
-	.md-card {
+	/*.md-card {
 		width: 100%;
-	}
+	}*/
 
 	.text {
 		margin-bottom: 10px;
@@ -30,7 +30,8 @@
 		<md-card-content>
 			<md-layout md-gutter md-column v-for="(data, user) in users" class="text">
 				<div title="user" class="text-user">{{user}}</div>
-				<ms-summary lighter="true" v-bind:data="data"></ms-summary>
+
+				<ms-summary lighter="true" v-bind:data="data.criterias"></ms-summary>
 			</md-layout>
 		</md-card-content>
 

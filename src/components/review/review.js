@@ -11,14 +11,64 @@ function emptyReview() {
 	}
 }
 
+function emptyCriteriaData() {
+	return {
+		max: null,
+		mean: null,
+		min: Infinity,
+		sum: 0,
+		summary: '',
+		unit: ''
+	}
+}
+
 function emptyUserData() {
 	return {
-		mean: 0,
-		quantity: 0,
-		sum: 0,
-		toBullseyeMean: 0,
-		toBullseyeMax: 0,
-		toBullseyeMin: Infinity
+		criterias: {},
+		quantity: 0
+	}
+}
+
+function resumeUserData(shots) {
+	let uData = emptyUserData()
+	uData.quantity = shots.length
+
+	for (s in shots) {
+		let shot = shots[s]
+		for (c in shot) {
+			uData.criterias[c] = uData.criterias[c] || emptyCriteriaData()
+			uData.criterias[c].sum += shot[c]
+			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
+			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
+			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
+			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].summary = criteriaSummary(c, uData)
+		}
+	}
+
+	return uData
+}
+
+// TODO: implement this to the user!
+function criteriaUnit(criteria) {
+	switch(criteria) {
+		case 'toBullseye':
+			return 'cm'
+		case 'score':
+		default:
+			return ''
+	}
+}
+
+// TODO: implement this to the user!
+function criteriaSummary(criteria, data) {
+	switch(criteria) {
+		case 'score':
+			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+		case 'toBullseye':
+			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+		default:
+			return `mean in ${data.quantity} shots`
 	}
 }
 
@@ -44,17 +94,7 @@ module.exports = {
 
 			for (u in this.session.userData) {
 				let user = decodeUserEmail(u)
-				this.users[user] = emptyUserData()
-				for (s in this.session.userData[u].shots) {
-					let shot = this.session.userData[u].shots[s]
-					this.users[user].sum += shot.score
-					this.users[user].toBullseyeMean = (this.users[user].toBullseyeMean * Number(s) + shot.toBullseye) / (Number(s) + 1)
-					if (this.users[user].toBullseyeMin > shot.toBullseye) this.users[user].toBullseyeMin = shot.toBullseye
-					if (this.users[user].toBullseyeMax < shot.toBullseye) this.users[user].toBullseyeMax = shot.toBullseye
-				}
-				this.users[user].quantity = this.session.userData[u].shots.length;
-				this.users[user].mean = roundUp(this.users[user].sum / this.users[user].quantity, 100)
-				this.users[user].toBullseyeMean = roundUp(this.users[user].toBullseyeMean, 100)
+				this.users[user] = resumeUserData(this.session.userData[u].shots)
 			}
 		}
 	},

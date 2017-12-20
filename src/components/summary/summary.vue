@@ -14,17 +14,14 @@
 </style>
 
 <template>
-	<md-layout>
-		<md-layout md-column title="mean">
-			<span class="text-value">{{data.mean}}</span>
-			<span class="text-secondary">scored {{data.sum}} from {{data.quantity}} shots</span>
+	<div>
+		<md-layout>
+			<md-layout md-column v-for="(highlights, criteria) in data" v-bind:title="criteria">
+				<span class="text-value">{{roundUp(highlights.mean, 100)}}{{highlights.unit}}</span>
+				<span class="text-secondary">{{highlights.summary}}</span>
+			</md-layout>
 		</md-layout>
-		
-		<md-layout md-column title="mean to bullseye">
-			<span class="text-value">{{data.toBullseyeMean}}cm</span>
-			<span class="text-secondary">{{data.toBullseyeMin}}cm - {{data.toBullseyeMax}}cm</span>
-		</md-layout>
-	</md-layout>
+	</div>
 </template>
 
 <script src="./summary.js"></script>

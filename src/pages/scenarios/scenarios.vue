@@ -36,24 +36,26 @@
 		</transition-group>
 
 		<md-layout md-gutter md-column-xsmall md-vertical-align="start" v-else>
-			<md-layout md-column v-if="onSession">
+			<md-layout md-column v-for="sc in scenarios" v-if="onSession">
 				<md-layout md-column-xsmall md-column-small>
-					<md-layout md-flex="50"><ms-weapon v-bind:session="session"></ms-weapon></md-layout>
-					<md-layout md-flex="50"><ms-guests v-bind:guests="sessionUsers"></ms-guests></md-layout>
+					<md-layout md-flex="50">
+						<ms-weapon v-bind:session="session"></ms-weapon>
+					</md-layout>
+					<md-layout md-flex="50">
+						<ms-guests v-bind:guests="sessionUsers"></ms-guests>
+					</md-layout>
 				</md-layout>
 
-				<ms-shots v-for="user in sessionUsers" v-bind:user="user" v-bind:key="user" v-bind:on-save="saveShots"></ms-shots>
+				<ms-shots v-for="user in sessionUsers" v-bind:user="user" v-bind:criterias="sc.criterias" v-bind:key="user" v-bind:on-save="saveShots"></ms-shots>
 			</md-layout>
 
-			<md-layout md-column v-else>
-				<ms-scenarios v-bind:scenarios="scenarios" v-bind:start="start"></ms-scenarios>
-			</md-layout>
+			<ms-scenarios v-bind:scenarios="scenarios" v-bind:start="start" v-else></ms-scenarios>
 
-			<md-layout md-column>
-				<ms-stats v-bind:sessions="scenarioSessions"></ms-stats>
+			<md-layout md-column v-for="sc in scenarios">
+				<ms-stats v-bind:sessions="scenarioSessions" v-bind:criterias="sc.criterias"></ms-stats>
 				
 				<transition-group name="slide-fade">
-					<ms-review v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:key="ss.date"></ms-review>
+					<ms-review v-for="ss in scenarioSessions" v-bind:session="ss" v-bind:criterias="sc.criterias" v-bind:key="ss.date"></ms-review>
 				</transition-group>
 			</md-layout>
 		</md-layout>

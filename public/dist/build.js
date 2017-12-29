@@ -43762,7 +43762,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-f7b28e90", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-f7b28e90", __vue__options__)
+    hotAPI.reload("data-v-f7b28e90", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],161:[function(require,module,exports){
@@ -43919,7 +43919,7 @@ function emptyUserData() {
 	}
 }
 
-function resumeUserData(shots) {
+function resumeUserData(shots, criterias) {
 	let uData = emptyUserData()
 	uData.quantity = shots.length
 
@@ -43931,7 +43931,7 @@ function resumeUserData(shots) {
 			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
 			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
 			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
-			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].unit = criterias[c] ? criterias[c].unit : (console.error('Unconfigured scenario criteria in shots:', c) || "")
 			uData.criterias[c].summary = criteriaSummary(c, uData)
 		}
 	}
@@ -43940,23 +43940,12 @@ function resumeUserData(shots) {
 }
 
 // TODO: implement this to the user!
-function criteriaUnit(criteria) {
-	switch(criteria) {
-		case 'toBullseye':
-			return 'cm'
-		case 'score':
-		default:
-			return ''
-	}
-}
-
-// TODO: implement this to the user!
 function criteriaSummary(criteria, data) {
 	switch(criteria) {
 		case 'score':
-			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+			return `${data.criterias[criteria].sum} in ${data.quantity} shots`
 		case 'toBullseye':
-			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+			return `${data.criterias[criteria].min}${data.criterias[criteria].unit} - ${data.criterias[criteria].max}${data.criterias[criteria].unit}`
 		default:
 			return `mean in ${data.quantity} shots`
 	}
@@ -43967,7 +43956,7 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props: ['session'],
+	props: ['session', 'criterias'],
 
 	data: function() {
 		return emptyReview()
@@ -43984,7 +43973,7 @@ module.exports = {
 
 			for (u in this.session.userData) {
 				let user = decodeUserEmail(u)
-				this.users[user] = resumeUserData(this.session.userData[u].shots)
+				this.users[user] = resumeUserData(this.session.userData[u].shots, this.criterias)
 			}
 		}
 	},
@@ -44044,7 +44033,8 @@ function emptyScenario() {
 		target: {
 			size: null,
 			material: '',
-		}
+		},
+		criterias: {}
 	}
 }
 
@@ -44072,6 +44062,15 @@ module.exports = {
 				target: {
 					size: 20,
 					material: 'paper',
+				},
+				criterias: {
+					score: {
+						better: "+",
+						measure: "mean",
+						roundUp: 2,
+						step: 1,
+						unit: ""
+					}
 				}
 			},
 			user: null
@@ -44131,7 +44130,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return (_vm.scenarios)?_c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Start a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('div',{staticClass:"md-list-text-container",attrs:{"title":'go to ' + sc.id}},[_c('router-link',{attrs:{"to":'/scenarios/' + sc.id}},[_vm._v(_vm._s(sc.id))])],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-accent"},[_vm._v("play_arrow")])],1)],1)}))],1)],1)],1):_vm._e()}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":"","md-gutter":""}},[(_vm.scenarios)?_c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Start a scenario")])]),_vm._v(" "),_c('md-card-content',[_c('md-list',_vm._l((_vm.scenarios),function(sc){return _c('md-list-item',[_c('div',{staticClass:"md-list-text-container",attrs:{"title":'go to ' + sc.id}},[_c('router-link',{attrs:{"to":'/scenarios/' + sc.id}},[_vm._v(_vm._s(sc.id))])],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-list-action",attrs:{"title":"start"},on:{"click":function($event){_vm.start(sc)}}},[_c('md-icon',{staticClass:"md-accent"},[_vm._v("play_arrow")])],1)],1)}))],1)],1):_vm._e()],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44162,6 +44161,31 @@ function emptySession() {
 	}
 }
 
+function emptyScenario() {
+	return {
+		author: '',
+		id: '',
+		distance: null,
+		environment: '',
+		weapon: {
+			caliber: null,
+			maker: '',
+			model: '',
+		},
+		ammunition: {
+			caliber: null,
+			weight: null,
+			maker: '',
+			material: '',
+		},
+		target: {
+			size: null,
+			material: '',
+		},
+		criterias: {}
+	}
+}
+
 function emptyCriteriaData() {
 	return {
 		max: null,
@@ -44180,7 +44204,7 @@ function emptyUserData() {
 	}
 }
 
-function resumeUserData(shots) {
+function resumeUserData(shots, criterias) {
 	let uData = emptyUserData()
 	uData.quantity = shots.length
 
@@ -44192,7 +44216,7 @@ function resumeUserData(shots) {
 			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
 			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
 			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
-			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].unit = criterias[c] ? criterias[c].unit : (console.error('Unconfigured scenario criteria in shots:', c) || "")
 			uData.criterias[c].summary = criteriaSummary(c, uData)
 		}
 	}
@@ -44201,23 +44225,12 @@ function resumeUserData(shots) {
 }
 
 // TODO: implement this to the user!
-function criteriaUnit(criteria) {
-	switch(criteria) {
-		case 'toBullseye':
-			return 'cm'
-		case 'score':
-		default:
-			return ''
-	}
-}
-
-// TODO: implement this to the user!
 function criteriaSummary(criteria, data) {
 	switch(criteria) {
 		case 'score':
-			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+			return `${data.criterias[criteria].sum} in ${data.quantity} shots`
 		case 'toBullseye':
-			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+			return `${data.criterias[criteria].min}${data.criterias[criteria].unit} - ${data.criterias[criteria].max}${data.criterias[criteria].unit}`
 		default:
 			return `mean in ${data.quantity} shots`
 	}
@@ -44228,46 +44241,67 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props : ['scenario', 'date'],
+	props : ['id', 'date'],
 
 	data: function() {
 		return {
 			session: emptySession(),
-			rawSession: emptySession()
+			scenario: emptyScenario()
 		}
 	},
 
-	created: function() {
-	},
-
 	mounted: function() {
-		this.load(this.scenario, this.date)
+		this.load(this.id, this.date)
 	},
 
 	methods: {
 		reset: function() {
+			this.scenario = emptyScenario()
 			this.session = emptySession()
-			this.session.date = new Date(Number(this.date))
-
-			this.rawSession = emptySession()
 		},
 
-		load: function(scenario, date) {
+		load: function(scenarioID, date) {
+			this.reset()
+
+			firebase.Promise.all([
+				this.loadScenario(scenarioID),
+				this.loadSession(scenarioID, date)
+			])
+			.then(this.render)
+		},
+
+		loadScenario: function(scenarioID) {
 			let that = this
-			firebase.database().ref('sessions/' + scenario + '/' + date).on('value', function(snap) {
-				that.reset()
-				if (snap.val() !== null)
-					that.rawSession = snap.val()
-				that.render()
+			return new firebase.Promise(function(resolve, reject){
+				firebase.database().ref('scenarios/' + scenarioID).on('value', function(snap) {
+					if (snap.val() !== null)
+						that.scenario = snap.val()
+					resolve()
+				})
+			})
+		},
+
+		loadSession: function(scenarioID, date) {
+			let that = this
+			return new firebase.Promise(function(resolve, reject){
+				firebase.database().ref('sessions/' + scenarioID + '/' + date).on('value', function(snap) {
+					if (snap.val() !== null) {
+						that.session = snap.val()
+						that.session.date = new Date(that.session.date)
+					}
+					resolve()
+				})
 			})
 		},
 
 		render: function() {
-			for (u in this.rawSession.userData) {
+			for (u in this.session.userData) {
 				let email = decodeUserEmail(u)
-				this.session.userData[email] = resumeUserData(this.rawSession.userData[u].shots)
-				this.session.userData[email].shots = this.rawSession.userData[u].shots
+				this.session.userData[email] = resumeUserData(this.session.userData[u].shots, this.scenario.criterias)
+				this.session.userData[email].shots = this.session.userData[u].shots
+				delete this.session.userData[u]
 			}
+			this.$forceUpdate()
 		}
 	}
 }
@@ -44275,7 +44309,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getDate())+"/"+_vm._s(_vm.session.date.getMonth() + 1)+"/"+_vm._s(_vm.session.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getHours())+":"+_vm._s(_vm.session.date.getMinutes() < 10 ? '0'+_vm.session.date.getMinutes() : _vm.session.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + _vm.scenario)}},[_vm._v(_vm._s(_vm.scenario))])],1)],1),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":""}},_vm._l((_vm.session.userData),function(data,user){return _c('md-card',[_c('md-card-content',[_c('md-layout',{attrs:{"md-gutter":"","md-column":""}},[_c('div',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))]),_vm._v(" "),_c('ms-summary',{attrs:{"lighter":"true","data":data.criterias}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot}})],1)})],2)],1)],1)}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-column":""}},[_c('md-card',[_c('md-card-header',[_c('md-card-header-text',[_c('div',{staticClass:"md-title"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getDate())+"/"+_vm._s(_vm.session.date.getMonth() + 1)+"/"+_vm._s(_vm.session.date.getFullYear()))])]),_vm._v(" "),_c('div',{staticClass:"md-subhead"},[_c('span',[_vm._v(_vm._s(_vm.session.date.getHours())+":"+_vm._s(_vm.session.date.getMinutes() < 10 ? '0'+_vm.session.date.getMinutes() : _vm.session.date.getMinutes()))])])]),_vm._v(" "),_c('router-link',{attrs:{"to":("/scenarios/" + _vm.id)}},[_vm._v(_vm._s(_vm.id))])],1)],1),_vm._v(" "),_c('md-layout',{attrs:{"md-gutter":"","md-align":"center"}},_vm._l((_vm.session.userData),function(data,user){return _c('md-card',{key:user},[_c('md-card-header',[_c('span',{attrs:{"title":"user"}},[_vm._v(_vm._s(user))])]),_vm._v(" "),_c('md-card-content',[_c('ms-summary',{attrs:{"lighter":"true","data":data.criterias}}),_vm._v(" "),_vm._l((data.shots),function(shot){return _c('div',[_c('ms-shot',{attrs:{"shot":shot,"criterias":_vm.scenario.criterias}})],1)})],2)],1)}))],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44289,25 +44323,14 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154}],168:[function(require,module,exports){
 ;(function(){
-function emptyShot() {
-	return {
-		score: 0,
-		toBullseye: 0
-	}
-}
-
 module.exports = {
-	props: ['shot'],
-
-	data: function() {
-		return emptyShot()
-	},
+	props: ['shot', 'criterias'],
 }
 })()
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-gutter":""}},[_c('md-layout',{attrs:{"md-flex":"45"}},[_c('span',[_vm._v(_vm._s(_vm.shot.score))])]),_vm._v(" "),_c('md-layout',{attrs:{"md-flex":"45"}},[_c('span',[_vm._v("("+_vm._s(_vm.shot.toBullseye)+" cm)")])])],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-gutter":""}},_vm._l((_vm.shot),function(data,crit){return _c('md-layout',{attrs:{"md-flex":"45"}},[_c('span',[_vm._v(_vm._s(data)+" "+_vm._s(_vm.criterias[crit].unit))])])}))}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44316,26 +44339,28 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-1df06998", __vue__options__)
   } else {
-    hotAPI.reload("data-v-1df06998", __vue__options__)
+    hotAPI.rerender("data-v-1df06998", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}],169:[function(require,module,exports){
 ;(function(){
 var firebase = require('firebase')
 
-function emptyShot() {
-	return {
-		score: 0,
-		toBullseye: 0
+function emptyShot(criterias) {
+	let emptyShot = {}
+	for (c in criterias) {
+		emptyShot[c] = 0
 	}
+
+	return emptyShot
 }
 
 module.exports = {
-	props: ['onSave', 'user'],
+	props: ['onSave', 'user', 'criterias'],
 
 	data: function() {
 		return {
-			shot: emptyShot(),
+			shot: emptyShot(this.criterias),
 			shots: []
 		}
 	},
@@ -44345,7 +44370,7 @@ module.exports = {
 			var that = this
 			this.shots.push(this.shot)
 			this.onSave(this.user, this.shots).then(function() {
-				that.shot = emptyShot()
+				that.shot = emptyShot(that.criterias)
 			}, function(e) {
 				console.error(e)
 				that.shots.pop()
@@ -44357,7 +44382,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Shots in this session for user "+_vm._s(_vm.user))])]),_vm._v(" "),_c('md-card-content',[_vm._l((_vm.shots),function(s){return _c('md-input-container',[_c('md-input',{attrs:{"disabled":""},model:{value:(s.score),callback:function ($$v) {s.score=$$v},expression:"s.score"}}),_vm._v(" "),_c('md-input',{attrs:{"disabled":""},model:{value:(s.toBullseye),callback:function ($$v) {s.toBullseye=$$v},expression:"s.toBullseye"}})],1)}),_vm._v(" "),_c('form',{attrs:{"action":"javascript:void(0);"},on:{"submit":_vm.save}},[_c('md-layout',{attrs:{"md-gutter":""}},[_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("Score")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0"},model:{value:(_vm.shot.score),callback:function ($$v) {_vm.shot.score=_vm._n($$v)},expression:"shot.score"}})],1)],1),_vm._v(" "),_c('md-layout',[_c('md-input-container',[_c('label',[_vm._v("To bullseye (cm)")]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0","step":"0.05"},model:{value:(_vm.shot.toBullseye),callback:function ($$v) {_vm.shot.toBullseye=_vm._n($$v)},expression:"shot.toBullseye"}})],1)],1),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-accent",attrs:{"type":"submit"}},[_c('md-icon',[_vm._v("add_box")])],1)],1)],1)],2)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-card',[_c('md-card-header',[_c('span',[_vm._v("Shots in this session for user "+_vm._s(_vm.user))])]),_vm._v(" "),_c('md-card-content',[_vm._l((_vm.shots),function(s){return _c('md-input-container',_vm._l((_vm.criterias),function(c){return _c('md-input',{attrs:{"disabled":""},model:{value:(s[c]),callback:function ($$v) {_vm.$set(s, c, $$v)},expression:"s[c]"}})}))}),_vm._v(" "),_c('form',{attrs:{"action":"javascript:void(0);"},on:{"submit":_vm.save}},[_c('md-layout',{attrs:{"md-gutter":""}},[_vm._l((_vm.criterias),function(config,name){return _c('md-layout',[_c('md-input-container',[_c('label',[_vm._v(_vm._s(name)+_vm._s(config.unit ? (" (" + (config.unit) + ")") : ""))]),_vm._v(" "),_c('md-input',{attrs:{"type":"number","min":"0","step":config.step},model:{value:(_vm.shot[name]),callback:function ($$v) {_vm.$set(_vm.shot, name, _vm._n($$v))},expression:"shot[name]"}})],1)],1)}),_vm._v(" "),_c('md-button',{staticClass:"md-icon-button md-accent",attrs:{"type":"submit"}},[_c('md-icon',[_vm._v("add_box")])],1)],2)],1)],2)],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44366,7 +44391,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-032c324c", __vue__options__)
   } else {
-    hotAPI.reload("data-v-032c324c", __vue__options__)
+    hotAPI.rerender("data-v-032c324c", __vue__options__)
   }
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154}],170:[function(require,module,exports){
@@ -44394,7 +44419,7 @@ function emptyUserData() {
 	}
 }
 
-function resumeUserData(shots) {
+function resumeUserData(shots, criterias) {
 	let uData = emptyUserData()
 	uData.quantity = shots.length
 
@@ -44406,7 +44431,7 @@ function resumeUserData(shots) {
 			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
 			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
 			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
-			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].unit = criterias[c] ? criterias[c].unit : (console.error('Unconfigured scenario criteria in shots:', c) || "")
 			uData.criterias[c].summary = criteriaSummary(c, uData)
 		}
 	}
@@ -44414,28 +44439,16 @@ function resumeUserData(shots) {
 	return uData
 }
 
-// TODO: implement this to the user!
-function criteriaIsBetter(criteria, oldBest, newBest) {
-	if (!newBest.mean) return false
-	else if (!oldBest.mean) return true
+function criteriaIsBetter(criteria, criteriaConfig, oldBest, newBest) {
+	if (!newBest[criteriaConfig.measure]) return false
+	else if (!oldBest[criteriaConfig.measure]) return true
 
-	switch (criteria) {
-		case 'toBullseye':
-			return newBest.mean < oldBest.mean 
-		case 'score':
+	switch (criteriaConfig.better) {
+		case '-':
+			return newBest[criteriaConfig.measure] < oldBest[criteriaConfig.measure] 
+		case '+':
 		default:
-			return newBest.mean > oldBest.mean
-	}
-}
-
-// TODO: implement this to the user!
-function criteriaUnit(criteria) {
-	switch(criteria) {
-		case 'toBullseye':
-			return 'cm'
-		case 'score':
-		default:
-			return ''
+			return newBest[criteriaConfig.measure] > oldBest[criteriaConfig.measure]
 	}
 }
 
@@ -44443,9 +44456,9 @@ function criteriaUnit(criteria) {
 function criteriaSummary(criteria, data) {
 	switch(criteria) {
 		case 'score':
-			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+			return `${data.criterias[criteria].sum} in ${data.quantity} shots`
 		case 'toBullseye':
-			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+			return `${data.criterias[criteria].min}${data.criterias[criteria].unit} - ${data.criterias[criteria].max}${data.criterias[criteria].unit}`
 		default:
 			return `mean in ${data.quantity} shots`
 	}
@@ -44456,7 +44469,7 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props: ['sessions'],
+	props: ['sessions', 'criterias'],
 
 	data: function() {
 		return {
@@ -44478,11 +44491,11 @@ module.exports = {
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
 				for (u in session.userData) {
-					uData = resumeUserData(session.userData[u].shots)
+					uData = resumeUserData(session.userData[u].shots, this.criterias)
 
 					for (c in uData.criterias) {
 						this.bests[c] = this.bests[c] || emptyCriteriaData()
-						if (criteriaIsBetter(c, this.bests[c], uData.criterias[c])) {
+						if (criteriaIsBetter(c, this.criterias[c], this.bests[c], uData.criterias[c])) {
 							this.bests[c] = {
 								date: new Date(session.date),
 								quantity: uData.quantity,
@@ -44573,7 +44586,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('md-layout',_vm._l((_vm.data),function(highlights,criteria){return _c('md-layout',{attrs:{"md-column":"","title":criteria}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.roundUp(highlights.mean, 100))+_vm._s(highlights.unit))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(highlights.summary))])])}))],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('md-layout',{attrs:{"md-gutter":""}},_vm._l((_vm.data),function(highlights,criteria){return _c('md-layout',{attrs:{"md-column":"","title":criteria}},[_c('span',{staticClass:"text-value"},[_vm._v(_vm._s(_vm.roundUp(highlights.mean, 100))+_vm._s(highlights.unit))]),_vm._v(" "),_c('span',{staticClass:"text-secondary"},[_vm._v(_vm._s(highlights.summary))])])}))}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-31074b26"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44776,17 +44789,6 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".fade-en
 ;(function(){
 var firebase = require('firebase')
 
-function emptySession() {
-	return {
-		date: null,
-		userData: {},
-		weapon: {
-			initialCharge: 0,
-			chargeType: ''
-		}
-	}
-}
-
 function objectToArray(obj) {
 	let array = []
 	for (k in obj) {
@@ -44797,6 +44799,17 @@ function objectToArray(obj) {
 
 function encodeUserEmail(email) {
 	return encodeURIComponent(email).replace(/\./g, '%2E')
+}
+
+function emptySession() {
+	return {
+		date: null,
+		userData: {},
+		weapon: {
+			initialCharge: 0,
+			chargeType: ''
+		}
+	}
 }
 
 module.exports = {
@@ -44827,8 +44840,9 @@ module.exports = {
 			this.onSession = scenario.id !== null
 			this.session.date = Date.now()
 			this.session.scenario = scenario.id
-			this.loadScenarioSessions(scenario.id)
 			this.sessionUsers = [firebase.auth().currentUser.email]
+			
+			this.load(scenario.id)
 		},
 
 		reset: function(param) {
@@ -44879,7 +44893,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Scenario' + (_vm.session.scenario ? ': ' + _vm.session.scenario : ''),"postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),(!_vm.onSession && !_vm.$route.params.id)?_c('transition-group',{attrs:{"name":"fade"}},[_c('md-layout',{key:"new",attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"75","md-align":"center"}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}}),_vm._v(" "),_c('ms-scenario',{attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1)],1)],1):_c('md-layout',{attrs:{"md-gutter":"","md-column-xsmall":"","md-vertical-align":"start"}},[(_vm.onSession)?_c('md-layout',{attrs:{"md-column":""}},[_c('md-layout',{attrs:{"md-column-xsmall":"","md-column-small":""}},[_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-weapon',{attrs:{"session":_vm.session}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-guests',{attrs:{"guests":_vm.sessionUsers}})],1)],1),_vm._v(" "),_vm._l((_vm.sessionUsers),function(user){return _c('ms-shots',{key:user,attrs:{"user":user,"on-save":_vm.saveShots}})})],2):_c('md-layout',{attrs:{"md-column":""}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss}})}))],1)],1)],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":'Scenario' + (_vm.session.scenario ? ': ' + _vm.session.scenario : ''),"postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),(!_vm.onSession && !_vm.$route.params.id)?_c('transition-group',{attrs:{"name":"fade"}},[_c('md-layout',{key:"new",attrs:{"md-column-xsmall":"","md-align":"center"}},[_c('md-layout',{attrs:{"md-flex-xsmall":"100","md-flex":"75","md-align":"center"}},[_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}}),_vm._v(" "),_c('ms-scenario',{attrs:{"on-success":_vm.start,"on-error":_vm.reset}})],1)],1)],1):_c('md-layout',{attrs:{"md-gutter":"","md-column-xsmall":"","md-vertical-align":"start"}},[_vm._l((_vm.scenarios),function(sc){return (_vm.onSession)?_c('md-layout',{attrs:{"md-column":""}},[_c('md-layout',{attrs:{"md-column-xsmall":"","md-column-small":""}},[_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-weapon',{attrs:{"session":_vm.session}})],1),_vm._v(" "),_c('md-layout',{attrs:{"md-flex":"50"}},[_c('ms-guests',{attrs:{"guests":_vm.sessionUsers}})],1)],1),_vm._v(" "),_vm._l((_vm.sessionUsers),function(user){return _c('ms-shots',{key:user,attrs:{"user":user,"criterias":sc.criterias,"on-save":_vm.saveShots}})})],2):_c('ms-scenarios',{attrs:{"scenarios":_vm.scenarios,"start":_vm.start}})}),_vm._v(" "),_vm._l((_vm.scenarios),function(sc){return _c('md-layout',{attrs:{"md-column":""}},[_c('ms-stats',{attrs:{"sessions":_vm.scenarioSessions,"criterias":sc.criterias}}),_vm._v(" "),_c('transition-group',{attrs:{"name":"slide-fade"}},_vm._l((_vm.scenarioSessions),function(ss){return _c('ms-review',{key:ss.date,attrs:{"session":ss,"criterias":sc.criterias}})}))],1)})],2)],1)}
 __vue__options__.staticRenderFns = []
 __vue__options__._scopeId = "data-v-0d160dfa"
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
@@ -44890,7 +44904,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-0d160dfa", __vue__options__)
   } else {
-    hotAPI.reload("data-v-0d160dfa", __vue__options__)
+    hotAPI.rerender("data-v-0d160dfa", __vue__options__)
   }
 })()}
 },{"firebase":92,"vue":158,"vue-hot-reload-api":154,"vueify/lib/insert-css":159}],179:[function(require,module,exports){
@@ -44902,7 +44916,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":"Session","postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),_c('ms-session',{attrs:{"scenario":_vm.$route.params.id,"date":_vm.$route.params.date}})],1)}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('ms-header',{attrs:{"prefix":"Session","postfix":_vm.user ? _vm.user.email : ''}}),_vm._v(" "),_c('ms-session',{attrs:{"id":_vm.$route.params.id,"date":_vm.$route.params.date}})],1)}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -44911,7 +44925,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-33637c40", __vue__options__)
   } else {
-    hotAPI.reload("data-v-33637c40", __vue__options__)
+    hotAPI.rerender("data-v-33637c40", __vue__options__)
   }
 })()}
 },{"vue":158,"vue-hot-reload-api":154}]},{},[174]);

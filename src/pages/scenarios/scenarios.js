@@ -1,16 +1,5 @@
 var firebase = require('firebase')
 
-function emptySession() {
-	return {
-		date: null,
-		userData: {},
-		weapon: {
-			initialCharge: 0,
-			chargeType: ''
-		}
-	}
-}
-
 function objectToArray(obj) {
 	let array = []
 	for (k in obj) {
@@ -21,6 +10,17 @@ function objectToArray(obj) {
 
 function encodeUserEmail(email) {
 	return encodeURIComponent(email).replace(/\./g, '%2E')
+}
+
+function emptySession() {
+	return {
+		date: null,
+		userData: {},
+		weapon: {
+			initialCharge: 0,
+			chargeType: ''
+		}
+	}
 }
 
 module.exports = {
@@ -51,8 +51,9 @@ module.exports = {
 			this.onSession = scenario.id !== null
 			this.session.date = Date.now()
 			this.session.scenario = scenario.id
-			this.loadScenarioSessions(scenario.id)
 			this.sessionUsers = [firebase.auth().currentUser.email]
+			
+			this.load(scenario.id)
 		},
 
 		reset: function(param) {

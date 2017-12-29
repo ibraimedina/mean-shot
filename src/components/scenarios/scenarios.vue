@@ -1,6 +1,6 @@
 <template>
-	<md-layout md-column md-gutter v-if="scenarios">
-		<md-card>
+	<md-layout md-column md-gutter>
+		<md-card v-if="scenarios">
 			<md-card-header>
 				<span>Start a scenario</span>
 			</md-card-header>

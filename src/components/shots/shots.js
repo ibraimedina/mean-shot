@@ -1,18 +1,20 @@
 var firebase = require('firebase')
 
-function emptyShot() {
-	return {
-		score: 0,
-		toBullseye: 0
+function emptyShot(criterias) {
+	let emptyShot = {}
+	for (c in criterias) {
+		emptyShot[c] = 0
 	}
+
+	return emptyShot
 }
 
 module.exports = {
-	props: ['onSave', 'user'],
+	props: ['onSave', 'user', 'criterias'],
 
 	data: function() {
 		return {
-			shot: emptyShot(),
+			shot: emptyShot(this.criterias),
 			shots: []
 		}
 	},
@@ -22,7 +24,7 @@ module.exports = {
 			var that = this
 			this.shots.push(this.shot)
 			this.onSave(this.user, this.shots).then(function() {
-				that.shot = emptyShot()
+				that.shot = emptyShot(that.criterias)
 			}, function(e) {
 				console.error(e)
 				that.shots.pop()

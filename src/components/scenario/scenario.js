@@ -20,7 +20,8 @@ function emptyScenario() {
 		target: {
 			size: null,
 			material: '',
-		}
+		},
+		criterias: {}
 	}
 }
 
@@ -48,6 +49,15 @@ module.exports = {
 				target: {
 					size: 20,
 					material: 'paper',
+				},
+				criterias: {
+					score: {
+						better: "+",
+						measure: "mean",
+						roundUp: 2,
+						step: 1,
+						unit: ""
+					}
 				}
 			},
 			user: null

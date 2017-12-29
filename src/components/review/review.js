@@ -29,7 +29,7 @@ function emptyUserData() {
 	}
 }
 
-function resumeUserData(shots) {
+function resumeUserData(shots, criterias) {
 	let uData = emptyUserData()
 	uData.quantity = shots.length
 
@@ -41,7 +41,7 @@ function resumeUserData(shots) {
 			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
 			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
 			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
-			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].unit = criterias[c] ? criterias[c].unit : (console.error('Unconfigured scenario criteria in shots:', c) || "")
 			uData.criterias[c].summary = criteriaSummary(c, uData)
 		}
 	}
@@ -50,23 +50,12 @@ function resumeUserData(shots) {
 }
 
 // TODO: implement this to the user!
-function criteriaUnit(criteria) {
-	switch(criteria) {
-		case 'toBullseye':
-			return 'cm'
-		case 'score':
-		default:
-			return ''
-	}
-}
-
-// TODO: implement this to the user!
 function criteriaSummary(criteria, data) {
 	switch(criteria) {
 		case 'score':
-			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+			return `${data.criterias[criteria].sum} in ${data.quantity} shots`
 		case 'toBullseye':
-			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+			return `${data.criterias[criteria].min}${data.criterias[criteria].unit} - ${data.criterias[criteria].max}${data.criterias[criteria].unit}`
 		default:
 			return `mean in ${data.quantity} shots`
 	}
@@ -77,7 +66,7 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props: ['session'],
+	props: ['session', 'criterias'],
 
 	data: function() {
 		return emptyReview()
@@ -94,7 +83,7 @@ module.exports = {
 
 			for (u in this.session.userData) {
 				let user = decodeUserEmail(u)
-				this.users[user] = resumeUserData(this.session.userData[u].shots)
+				this.users[user] = resumeUserData(this.session.userData[u].shots, this.criterias)
 			}
 		}
 	},

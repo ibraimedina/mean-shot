@@ -20,7 +20,7 @@ function emptyUserData() {
 	}
 }
 
-function resumeUserData(shots) {
+function resumeUserData(shots, criterias) {
 	let uData = emptyUserData()
 	uData.quantity = shots.length
 
@@ -32,7 +32,7 @@ function resumeUserData(shots) {
 			if (uData.criterias[c].max < shot[c]) uData.criterias[c].max = shot[c]
 			if (uData.criterias[c].min > shot[c]) uData.criterias[c].min = shot[c]
 			uData.criterias[c].mean = (uData.criterias[c].mean * Number(s) + shot[c]) / (Number(s) + 1)
-			uData.criterias[c].unit = criteriaUnit(c)
+			uData.criterias[c].unit = criterias[c] ? criterias[c].unit : (console.error('Unconfigured scenario criteria in shots:', c) || "")
 			uData.criterias[c].summary = criteriaSummary(c, uData)
 		}
 	}
@@ -40,28 +40,16 @@ function resumeUserData(shots) {
 	return uData
 }
 
-// TODO: implement this to the user!
-function criteriaIsBetter(criteria, oldBest, newBest) {
-	if (!newBest.mean) return false
-	else if (!oldBest.mean) return true
+function criteriaIsBetter(criteria, criteriaConfig, oldBest, newBest) {
+	if (!newBest[criteriaConfig.measure]) return false
+	else if (!oldBest[criteriaConfig.measure]) return true
 
-	switch (criteria) {
-		case 'toBullseye':
-			return newBest.mean < oldBest.mean 
-		case 'score':
+	switch (criteriaConfig.better) {
+		case '-':
+			return newBest[criteriaConfig.measure] < oldBest[criteriaConfig.measure] 
+		case '+':
 		default:
-			return newBest.mean > oldBest.mean
-	}
-}
-
-// TODO: implement this to the user!
-function criteriaUnit(criteria) {
-	switch(criteria) {
-		case 'toBullseye':
-			return 'cm'
-		case 'score':
-		default:
-			return ''
+			return newBest[criteriaConfig.measure] > oldBest[criteriaConfig.measure]
 	}
 }
 
@@ -69,9 +57,9 @@ function criteriaUnit(criteria) {
 function criteriaSummary(criteria, data) {
 	switch(criteria) {
 		case 'score':
-			return `scored ${data.criterias[criteria].sum} in ${data.quantity} shots`
+			return `${data.criterias[criteria].sum} in ${data.quantity} shots`
 		case 'toBullseye':
-			return `${data.criterias[criteria].min}cm - ${data.criterias[criteria].max}cm`
+			return `${data.criterias[criteria].min}${data.criterias[criteria].unit} - ${data.criterias[criteria].max}${data.criterias[criteria].unit}`
 		default:
 			return `mean in ${data.quantity} shots`
 	}
@@ -82,7 +70,7 @@ function decodeUserEmail(email) {
 }
 
 module.exports = {
-	props: ['sessions'],
+	props: ['sessions', 'criterias'],
 
 	data: function() {
 		return {
@@ -104,11 +92,11 @@ module.exports = {
 			for (ss in this.sessions) {
 				let session = this.sessions[ss]
 				for (u in session.userData) {
-					uData = resumeUserData(session.userData[u].shots)
+					uData = resumeUserData(session.userData[u].shots, this.criterias)
 
 					for (c in uData.criterias) {
 						this.bests[c] = this.bests[c] || emptyCriteriaData()
-						if (criteriaIsBetter(c, this.bests[c], uData.criterias[c])) {
+						if (criteriaIsBetter(c, this.criterias[c], this.bests[c], uData.criterias[c])) {
 							this.bests[c] = {
 								date: new Date(session.date),
 								quantity: uData.quantity,

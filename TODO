@@ -1,5 +1,10 @@
-Change session/ to scenario/ in firebase
 Different records: cm, points, fps... per scenario
+	Config scenario creation to store measures
+	Use config on start
+	Show all tied records
+Loading scenarios list	
+Change session/ to scenario/ in firebase
+Direct scenario session creation (/scenarios/6m-home/new)
 
 Feedback if has user logged, including disabled buttons, forbidden pages, forbid db changes, etc.
 User dashboard page (scenarios shot, mean on each of then, dates, click to start session at that scenario)
@@ -8,5 +13,6 @@ Custom measure unit per scenario: cm, points, fps... Add more than one per scena
 Lint code
 Separate API from components in different files
 Unit test with vuejs and unit js test
+Scenario "search bar"
 
 Add translation (i18n)

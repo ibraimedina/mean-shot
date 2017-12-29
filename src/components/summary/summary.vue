@@ -14,14 +14,12 @@
 </style>
 
 <template>
-	<div>
-		<md-layout>
-			<md-layout md-column v-for="(highlights, criteria) in data" v-bind:title="criteria">
-				<span class="text-value">{{roundUp(highlights.mean, 100)}}{{highlights.unit}}</span>
-				<span class="text-secondary">{{highlights.summary}}</span>
-			</md-layout>
+	<md-layout md-gutter>
+		<md-layout md-column v-for="(highlights, criteria) in data" v-bind:title="criteria">
+			<span class="text-value">{{roundUp(highlights.mean, 100)}}{{highlights.unit}}</span>
+			<span class="text-secondary">{{highlights.summary}}</span>
 		</md-layout>
-	</div>
+	</md-layout>
 </template>
 
 <script src="./summary.js"></script>
